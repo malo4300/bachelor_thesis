@@ -5,7 +5,7 @@ KM = function(alpha,
               n_row = 3650, # 365 day * 10 years 
               n_col = 0){
   if(alpha < 0 || delta < 0 || delta > 1){
-    retrun(NA)
+    return(NA)
   }
   #create constants
   if(0<delta && delta <1){
@@ -34,23 +34,22 @@ KM = function(alpha,
     #calculate matrix for different parameters
     # it is assumed that not both alpha and delta equal 0
     if(delta == 0){
-      (-min_xy/alpha^2)*exp(-alpha*min_xy)+ 
+      M[i,] = (-min_xy/alpha^2)*exp(-alpha*min_xy)+ 
         (2/alpha^3)*(1-exp(-alpha*min_xy))+
         (-min_xy/alpha^2)*exp(-alpha*max_xy)
     } else if(delta == 1){
-      
+      #assume alpha != 0
+      M[i,] = (1/alpha)*(1-exp(-alpha*min_xy))
+    } else{
+      M[i,] = (-alpha/(delta*l2^2))*(1-exp(-l2*x_scaled)-exp(-l2*y_grid))+
+        (1/alpha*delta)*(1-exp(-alpha*min_xy)) + 
+        (1/(delta*sqrt_d))*(((l1/l2)^2)*exp(-l2*(x_scaled + y_grid)) - exp(-l1*(min_xy) - l2*(max_xy)))
     }
+
         
-        
-        
-      
-      
-    }
+  }
+  return(M)
   }
   
-  
-
-
-
-M = matrix(rep(0,100), nrow =10, ncol = 10)
-M[1,] = seq(1:10)
+test_matrix = KM(0.5,0.5)
+View(test_matrix)
