@@ -63,7 +63,7 @@ KR_solv = function(
     inv_w, # the inverse weights
     K # the kernel matrix)
 ){
-  library(tidyverse)
+  #library(tidyverse)
   Nmax = nrow(K)
   Nmax_y = ncol(K)
   #break down cashflow matrix to only those were there is not zero cashflow

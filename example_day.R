@@ -36,7 +36,7 @@ inv_w = (dur*B)^2*number_of_bonds
 #plotting ----
 plot(ytm~I(ttm/365))
 #Fit model ----
-penalty = 1
+penalty = 0
 
 fitted_curves = KR_solv(C = C,
                         B = B,
