@@ -20,8 +20,11 @@ SW_Kernel = function(alpha,
     max_xy = pmax(x_scaled, y_grid)
     min_xy = pmin(x_scaled, y_grid)
   
+    #Def 1
     W[i,] = exp(-UFR*(x_scaled+y_grid))*(alpha*min_xy-0.5*exp(-alpha*max_xy)*(exp(alpha*min_xy)-exp(-alpha*min_xy)))
     
+    #Def 2
+    #W[i,] = exp(-UFR*(x_scaled+y_grid))*(alpha*min_xy-exp(-alpha*max_xy)*sinh(alpha*min_xy))
     }
   return(W)
 }
@@ -55,10 +58,10 @@ SW_Solver = function(C, # Cashflowmatrix
 
 
 #test
-B = as.vector(read.csv("data/price_2013-12-31.csv",header =F)[,1])
-C = as.matrix(read.csv("./data/cashflow_2013-12-31.csv", header = F))
+B = as.vector(read.csv("data/price_1961-06-30.csv",header =F)[,1])
+C = as.matrix(read.csv("data/cashflow_1961-06-30.csv", header = F))
 number_of_bonds = length(B)
-N = 50*365
+N = 30*365
 #make Kernel Matrix
 W = SW_Kernel(alpha = 0.1, n_row = N , UFR= 0.02)
 
