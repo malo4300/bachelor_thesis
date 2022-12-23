@@ -88,7 +88,7 @@ KR_solv = function(
   beta = (t(C_on_c_days)%*%CKC_inv)%*%(B-C_on_c_days%*%rep(1,number_days))
   
   g_solved = 1+K[, non_zero_casflow_idx]%*%beta
-  y_solved = -log(g_solved)/(1:Nmax)
+  y_solved = -log(g_solved)/(seq(1,Nmax)/365)
   
   return(data.frame(g = g_solved,
               y = y_solved))

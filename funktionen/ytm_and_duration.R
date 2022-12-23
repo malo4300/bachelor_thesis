@@ -9,7 +9,7 @@ get_ytm_and_duration = function(cashflow,
                          lower = 0,
                          upper = 1)$minimum
     
-    dur_solved = sum((time_to_cashflow/365)*cashflow*exp(-time_to_cashflow/365*ytm_solved))/B_i
+    dur_solved = sum((time_to_cashflow/365)*cashflow*exp((-time_to_cashflow/365)*ytm_solved))/B_i
     
     return(list(ytm_solved = ytm_solved,
                 dur_solved = dur_solved))   
