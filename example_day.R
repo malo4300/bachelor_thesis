@@ -1,5 +1,5 @@
-source("funktionen/kernel_matrix.R")
-source("funktionen/ytm_and_duration.R")
+source("functions/kernel_matrix.R")
+source("functions/ytm_and_duration.R")
 #Setting Parameters ----
 alpha = 0.05
 delta = 0
@@ -45,7 +45,7 @@ fitted_curves = KR_solv(C = C,
                         ridge = penalty,
                         inv_w = inv_w, 
                         K = K)
-
+fitted_curves$g[2]
 #plot(fitted_curves$y)
 #plot interpolation
 max_time_to_mat = max(ttm)

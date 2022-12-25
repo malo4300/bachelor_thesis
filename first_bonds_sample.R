@@ -1,5 +1,5 @@
 library(lubridate)
-source("funktionen/functions_for_dgp.R")
+source("functions/functions_for_dgp.R")
 maturities = readxl::read_excel("data/treasury_quotes_21_12_22.xlsx", col_names = F, range = "A1:A500")
 mat_obj = create_maturity_obj(maturities = maturities)
 y_true = sample_yield_function(weights_function = weights_function)

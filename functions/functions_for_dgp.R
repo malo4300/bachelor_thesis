@@ -7,10 +7,11 @@ weights_function = function(x, a = 0.005, b = 80, c = 1000){
 #c how the tail is shaped
 #normal yield curve a [0.0005,0.001]
 
-sample_yield_function = function(weights_function, max_maturity = 30*365){
+sample_yield_function = function(weights_function, max_maturity = 30*365,
+                                 a = 0.0005, b = 550 , c = 0){
   y = rep(0,max_maturity)
   for (i in 2:length(y)) {
-    y[i] = y[i-1] + runif(1,0,0.1)*weights_function(i,a = 0.0005, b = 550 , c = 0)
+    y[i] = y[i-1] + runif(1,0,0.1)*weights_function(i, a = a, b = b, c = c)
   }
   return(y)
 }
@@ -80,7 +81,7 @@ get_bond_price = function(C_vec, yield_str, noise = 1){
   discount_curve = exp(-yield_str*seq(1,length(yield_str))/365)
   price = C_vec[payable_dates] %*% discount_curve[payable_dates]
   # add noice
-  price = price +  rnorm(1,0,noise)*(log(max(payable_dates))/(1+log(max(payable_dates))))
+  price = price +  rnorm(1,0,noise)*(log(max(payable_dates))/(1+log(max(payable_dates))))^4
   #noise depends on maturity 
   return(price)
 }
@@ -93,7 +94,31 @@ sample_bond = function(maturity_obj, yield_str, max_maturity = 30*365,noise = 1)
   return(list(
     Cashflow_Vector = c_vec,
     Price = price,
-    maturity = which.max(c_vec)
+    Maturity = which.max(c_vec)
   ))
 }
 
+sample_bonds_portfolio = function(maturity_obj, 
+                                  yield_str,
+                                  number_of_bonds = 50,
+                                  max_maturity = 30*365, 
+                                  noise = 1){
+  C = matrix(0, nrow = number_of_bonds, ncol = max_maturity)
+  B = rep(0,number_of_bonds)
+  Mat = rep(0,number_of_bonds)
+  for (i in 1:number_of_bonds) {
+    bond = sample_bond(maturity_obj = maturity_obj, 
+                       yield_str = yield_str ,
+                       max_maturity = max_maturity,  
+                       noise = noise)
+    C[i,] = bond$Cashflow_Vector
+    B[i] = bond$Price[1]
+    Mat[i] = bond$Maturity[1]
+  }
+  return(list(
+    Cashflow = C, 
+    Price = B, 
+    Maturity = Mat
+  ))
+  
+}
