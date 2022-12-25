@@ -5,6 +5,7 @@ get_ytm_and_duration = function(cashflow,
     ytm_func = function(y){
       return((sum(cashflow*exp((-time_to_cashflow/365)*y))-B_i)^2)
     }
+    #optimize finds the smallest value. Since my ytm_func >= 0 the smallest value is the root
     ytm_solved = optimize(ytm_func,
                          lower = 0,
                          upper = 1)$minimum
