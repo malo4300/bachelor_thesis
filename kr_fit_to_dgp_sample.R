@@ -9,7 +9,7 @@ alpha = 0.05
 delta = 0
 N = 30*365
 #make Kernel Matrix
-K = KM(alpha, delta, N,N)
+K = create_kernel_mat(alpha, delta, N,N)
 #generate yield curve
 y_true = sample_yield_function(weights_function = weights_function,
                                max_maturity = N)

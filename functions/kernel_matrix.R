@@ -1,6 +1,6 @@
 # Here the function for creating the kernel matrix is defined ----
 
-KM = function(alpha, 
+create_kernel_mat = function(alpha, 
               delta, 
               n_row = 3650, # 365 day * 10 years 
               n_col = 0){
