@@ -1,6 +1,7 @@
 source("functions/kernel_matrix.R")
 source("functions/ytm_and_duration.R")
 source("functions/functions_for_dgp.R")
+source("functions/RMSE.R")
 #libraries
 library(lubridate)
 library(tidyverse)

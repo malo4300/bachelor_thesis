@@ -1,22 +1,45 @@
-library(tidyverse)
-library(nleqslv)
 source("functions/functions_for_dgp.R")
-d_tau = function(tau, f, ttm){
+d_tau = function(tau, f, ttm, ttm_minus_one, f_K = 1){
+  #ttm_minus_one gives the place to which f is filled 
+  #determine the jumps
   sorted_ttm = sort(ttm)
-  K = sorted_ttm[sorted_ttm <= min(sorted_ttm[tau <= sorted_ttm])] # get jumps
-  sum_for_exp = 0
-  K_minus_one = 0
-  
-  if(length(K)>1){
-    for(i in 1:(length(K)-1)){
-      sum_for_exp = sum_for_exp + f[K[i]]*(K[i]-K_minus_one)/365
-      K_minus_one = K[i]
-    }
+  K = sum(ttm_minus_one>=sorted_ttm) 
+  if(K<1){ # get the first loop
+    return(exp(-(f_K)*tau/365))
+    
   }
-  sum_for_exp = sum_for_exp + f[max(K)]*(tau-K_minus_one)/365
-  print(sum_for_exp)
-  return(exp(-sum_for_exp))
-  
+  sum_for_output = 0 
+  helper_time = 0
+  jumps_in_known = sum(ttm_minus_one>=sorted_ttm)
+  print(jumps_in_known)
+  for(i in 1:jumps_in_known){
+    sum_for_output = sum_for_output + f[sorted_ttm[i]]*(sorted_ttm[i] - helper_time)/365
+    helper_time = sorted_ttm[i]
+  }
+  if(tau>ttm_minus_one){#usage of the f_K
+    sum_for_output = sum_for_output + f_K*(tau-ttm_minus_one)/365
+  }
+  return(exp(-sum_for_output))
+}
+
+function_for_nleq = function(forward_rate,
+                             ttm, #unsorted
+                             f, 
+                             ttm_minus_one, 
+                             c_mat, 
+                             current_ttm,
+                             price_vec){
+  current_bond_row = which(ttm == current_ttm) # only works if there are no dublicates
+  payment_days = which(c_mat[current_bond_row, ] != 0)
+  discounted_value = 0
+  for(j in 1:length(payment_days)){
+    discounted_value = discounted_value + 
+      c_mat[current_bond_row,payment_days[j]] * d_tau(tau = payment_days[j],
+                                                      f= f, ttm = ttm, ttm_minus_one = ttm_minus_one,
+                                                      f_K = forward_rate)
+    
+  }
+  return((price_vec[current_bond_row]-discounted_value)^2)
 }
 
 
@@ -31,62 +54,22 @@ fb_fit = function(c_mat,
   ttm_minus_one = 0
   for (i in 1:length(ttm)) {
     current_ttm = sorted_ttm[i]
-    current_bond_row = which(ttm == current_ttm)
-    payment_days = which(c_mat[current_bond_row, ] != 0)
+    solved_fw_rate = optimize(function(x) { #solve for new forward rate
+      function_for_nleq(x,
+                        ttm = ttm, 
+                        ttm_minus_one = ttm_minus_one,
+                        f = f,
+                        c_mat = c_mat,
+                        current_ttm = current_ttm, 
+                        price_vec = price_vec)
+      }, interval =  c(-1,1))$minimum
     
-    function_for_nleq = function(forward_rate){
-      check_sum = sum(payment_days<=ttm_minus_one)
-      sum_of_known_part = 0
-      if(check_sum>0){
-        known_part = payment_days[payment_days<=ttm_minus_one]
-          for(j in 1:length(known_part)){
-            sum_of_known_part = sum_of_known_part + 
-              c_mat[current_bond_row,known_part[j]] * d_tau(tau = known_part[j],
-                                                            f = f, 
-                                                            ttm = ttm)
-          }
-      }
-      check_sum = sum(payment_days>ttm_minus_one)
-      sum_of_unkown_part = 0
-      if(check_sum>0){
-        unkown_part = payment_days[payment_days>ttm_minus_one]
-        future_cashflow = c_mat[current_bond_row,unkown_part]
-        sum_of_exp_of_last_mat = log(d_tau(tau = ttm_minus_one,
-                                           f = f, 
-                                           ttm = ttm))
-        
-        sum_of_unkown_part = sum_of_unkown_part + 
-          future_cashflow %*%  exp(-forward_rate*(unkown_part-ttm_minus_one)/365 + sum_of_exp_of_last_mat)
-      
-         
-        
-      }
-      
-      whole_sum = sum_of_unkown_part + sum_of_known_part
-      
-      return(abs(price_vec[current_bond_row] - whole_sum))
-    }
-
-    solved_fw_rate = optimize(function_for_nleq,  c(-1,1))$minimum
-    if(i == 1){ # catch first loop
-      f[1:sorted_ttm[i]] = solved_fw_rate
-    }else{
-      f[(sorted_ttm[i-1]+1):sorted_ttm[i]] = solved_fw_rate
-    }
     
+    f[(ttm_minus_one+1):sorted_ttm[i]] = solved_fw_rate
     ttm_minus_one = sorted_ttm[i]
   }
-  return(f)
+  return(list(fw_rate = f, 
+              g = exp(-cumsum(f)/365)))
 }
-y_true = sample_yield_function(weights_function = weights_function)
-plot(y_true)
-portfolio = sample_bonds_portfolio(maturity_obj = mat_obj, yield_str = y_true, number_of_bonds = 15)
-ttm = apply(portfolio$Cashflow, 1, which.max)
-dub = duplicated(ttm)
 
-fb_unique_C = portfolio$Cashflow[!dub,]
-fb_unique_P = portfolio$Cashflow[!dub]
 
-fb_ets = fb_fit(fb_unique_C, fb_unique_P)
-
-plot(fb_ets[200:5000])

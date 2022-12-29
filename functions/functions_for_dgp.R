@@ -10,8 +10,10 @@ weights_function = function(x, a = 0.005, b = 80, c = 1000, d =365*10 ){
 sample_yield_function = function(weights_function, max_maturity = 30*365,
                                  a = 0.0005, b = 550 , c = 0, d =365*10  ){
   y = rep(0,max_maturity)
-  for (i in 2:length(y)) {
-    y[i] = y[i-1] + runif(1,0,0.1)*weights_function(i, a = a, b = b, c = c, d = d)
+  y_minus_one = 0
+  for (i in 1:length(y)) {
+    y[i] = y_minus_one + runif(1,0,0.1)*weights_function(i, a = a, b = b, c = c, d = d)
+    y_minus_one = y[i]
   }
   return(y)
 }
@@ -83,7 +85,7 @@ get_bond_price = function(C_vec, yield_str, noise = 1){
   # add noice
   price = price +  rnorm(1,0,noise)*(log(max(payable_dates))/(1+log(max(payable_dates))))^4
   #noise depends on maturity 
-  return(price)
+  return(round(price,2))
 }
 
 
