@@ -63,7 +63,7 @@ fb_fit = function(c_mat,
   ttm_minus_one = 0
   for (i in 1:length(sorted_unique_ttm)) {
     current_ttm = sorted_unique_ttm[i]
-    solved_fw_rate = nleqslv(x = 0, fn = function(x) { #solve for new forward rate
+    solved_fw_rate = nleqslv::nleqslv(x = 0, fn = function(x) { #solve for new forward rate
       function_for_nleq(forward_rate = x,
                         ttm = ttm, 
                         ttm_minus_one = ttm_minus_one,
@@ -83,5 +83,6 @@ fb_fit = function(c_mat,
               g = g, 
               y = y))
 }
+
 
 
