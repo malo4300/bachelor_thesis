@@ -1,4 +1,7 @@
 source("functions/functions_for_dgp.R")
+source("functions/portfolio_characteristics.R")
+source("functions/kernel_matrix.R")
+source("functions/loss_functions.R")
 library(tidyverse)
 library(lubridate)
 #set parameters
@@ -7,10 +10,12 @@ N = 30*365
 #generate true yield structure
 y_true = sample_yield_function(weights_function = weights_function,
                                a = 0.002, 
-                               b = 175, 
-                               c = 2000,
-                               d = 20*365) #introduces a humped yield curve
+                               b = 200, 
+                               c = 1500,
+                               d = 5000,
+                               e = 25) #introduces a humped yield curve
 g_true = exp(-y_true*(seq(1,N)/365))
+plot(y_true, type = "l")
 
 #create portfolio
 mat_sheet = readxl::read_excel("data/treasuries_quotes_23_12_22.xlsx", 
@@ -28,7 +33,7 @@ portfolio = sample_bonds_portfolio(maturity_obj = mat_obj,
                                   noise = 1)
 
 #get yields
-source("functions/weights.R")
+
 data_for_weigths = get_input_for_weights(C_mat = portfolio$Cashflow, 
                                         B_vec = portfolio$Price)
 
@@ -37,7 +42,7 @@ inv_weights = get_inv_weights(duration = data_for_weigths$Duration,
                               B_vec = portfolio$Price)
 
 # fit model
-source("functions/kernel_matrix.R")
+
 #Fit model ----
 penalty = 1
 alpha = 0.05
@@ -60,7 +65,6 @@ ggplot(data = data.frame(time_grid,fitted_curves),
   geom_line(aes(y = y_true, col = "red"))
 
 #testing
-source("functions/RMSE.R")
 
 calc_rmse(g_true = g_true, 
           g_est = fitted_curves$g, 
