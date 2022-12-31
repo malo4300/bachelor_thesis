@@ -48,7 +48,7 @@ function_for_nleq = function(forward_rate, # given by the solver
     }
   }
   
-  return(sum(abs((price_vec[bond_rows]-discounted_values))))
+  return(sum(((price_vec[bond_rows]-discounted_values)^2)))
 }
 
 

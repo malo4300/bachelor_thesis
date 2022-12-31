@@ -24,8 +24,8 @@ plot(y_true, type ="l")
 # requires lubridate package
 create_maturity_obj = function(maturities, max_maturity = 30*365, filter_90 = T){
   maturities = na.omit(maturities)
-  maturities = mdy(maturities$...1)
-  days_left = as.numeric(maturities - dmy("22/12/22")) #deadline date
+  maturities = lubridate::mdy(maturities[[1]])
+  days_left = as.numeric(maturities - lubridate::dmy("23/12/22")) #deadline date
   days_left = days_left[days_left <= max_maturity]
   if(filter_90){
     days_left = days_left[90 < days_left]
@@ -52,9 +52,9 @@ sample_maturity = function(maturity_obj, max_maturity = 30*365, filter_90 = T){
 
 # sample a bond given the yield structure
 
-sample_bond_cashflow = function(maturity_obj, max_maturity = 30*365){
+sample_bond_cashflow = function(maturity_obj, max_maturity = 30*365, filter_90 = T){
   
-  maturity = sample_maturity(maturity_obj, max_maturity)
+  maturity = sample_maturity(maturity_obj, max_maturity, filter_90 = filter_90)
   C_vec = rep(0,max_maturity)
   no_payments = ceiling((maturity/365)*2)
   cupon = round(runif(n = 1,
@@ -83,15 +83,19 @@ get_bond_price = function(C_vec, yield_str, noise = 1){
   discount_curve = exp(-yield_str*seq(1,length(yield_str))/365)
   price = C_vec[payable_dates] %*% discount_curve[payable_dates]
   # add noice
-  price = price +  rnorm(1,0,noise)*(log(max(payable_dates))/(1+log(max(payable_dates))))^4
+  price = price +  rnorm(1,0,noise)*(log(max(payable_dates))/(20+log(max(payable_dates))))
   #noise depends on maturity 
   return(round(price,2))
 }
 
 
 
-sample_bond = function(maturity_obj, yield_str, max_maturity = 30*365,noise = 1){
-  c_vec  = sample_bond_cashflow(maturity_obj, max_maturity)
+sample_bond = function(maturity_obj, 
+                       yield_str, 
+                       max_maturity = 30*365,
+                       noise = 1, 
+                       filter_90 = T){
+  c_vec  = sample_bond_cashflow(maturity_obj, max_maturity, filter_90 = filter_90)
   price = get_bond_price(c_vec, yield_str = yield_str,noise = noise)
   return(list(
     Cashflow_Vector = c_vec,
@@ -104,7 +108,8 @@ sample_bonds_portfolio = function(maturity_obj,
                                   yield_str,
                                   number_of_bonds = 50,
                                   max_maturity = 30*365, 
-                                  noise = 1){
+                                  noise = 1, 
+                                  filter_90 = T){
   C = matrix(0, nrow = number_of_bonds, ncol = max_maturity)
   B = rep(0,number_of_bonds)
   Mat = rep(0,number_of_bonds)
@@ -112,7 +117,8 @@ sample_bonds_portfolio = function(maturity_obj,
     bond = sample_bond(maturity_obj = maturity_obj, 
                        yield_str = yield_str ,
                        max_maturity = max_maturity,  
-                       noise = noise)
+                       noise = noise,
+                       filter_90 = filter_90)
     C[i,] = bond$Cashflow_Vector
     B[i] = bond$Price[1]
     Mat[i] = bond$Maturity[1]
@@ -123,4 +129,24 @@ sample_bonds_portfolio = function(maturity_obj,
     Maturity = Mat
   ))
   
+}
+
+#function shifts portfolio one day and calculates new prices based on the new yield curve
+shift_portfolio = function(new_yield_curve, portfolio, noise = 1){
+  c_mat = portfolio$Cashflow
+  max_mat = ncol(c_mat)
+  c_mat[,1:(max_mat-1)] = c_mat[,2:max_mat]
+  c_mat[,max_mat] = 0
+  n_bonds = length(portfolio$Price)
+  price = rep(0,n_bonds)
+  for(i in 1:n_bonds){
+    price[i] = get_bond_price(C_vec = c_mat[i,],
+                              yield_str =new_yield_curve,
+                              noise = noise)
+  }
+  return(list(
+    Cashflow = c_mat, 
+    Price = price, 
+    Maturity = portfolio$Maturity-1
+  ))
 }
