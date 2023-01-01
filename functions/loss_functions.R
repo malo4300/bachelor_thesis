@@ -1,5 +1,8 @@
-calc_rmse = function(g_true, g_est, weights, c_mat){
+calc_rmse = function(y_true, y_est, c_mat, weights = 1){
   number_of_bonds = nrow(c_mat)
+  N = ncol(c_mat)
+  g_true = exp(-y_true*(1:N)/365)
+  g_est = exp(-y_est*(1:N)/365)
   true_price = rep(0,number_of_bonds)
   pred_price = rep(0,number_of_bonds)
   for (i in 1:number_of_bonds) {
@@ -9,3 +12,5 @@ calc_rmse = function(g_true, g_est, weights, c_mat){
   }
   return(sqrt(sum(weights%*%(true_price-pred_price)^2)))
 }
+
+

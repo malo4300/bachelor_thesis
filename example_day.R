@@ -2,6 +2,7 @@ source("functions/kernel_matrix.R")
 source("functions/ytm_and_duration.R")
 source("functions/portfolio_characteristics.R")
 source("functions/fama_bliss.R")
+source("functions/loss_functions.R")
 library(tidyverse)
 library(scales)
 #Setting Parameters ----
@@ -50,7 +51,6 @@ ggplot(data = data.frame(fitted_curves, fb_est), aes(x = (1:N)/365)) +
                      values  = c("blue", "green")) + 
   ylab("Estimation of the yield curve") +
   xlab("Time to Maturity of zero coupon bond")
-
 
 
 

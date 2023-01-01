@@ -3,34 +3,37 @@ source("functions/portfolio_characteristics.R")
 source("functions/fama_bliss.R")
 library(tidyverse)
 library(lubridate)
-library("nleqslv")
+library(nleqslv)
+
 N = 365*30
 y_true = sample_yield_function(weights_function = weights_function, 
                                max_maturity = N, 
                                a = 0.0006, b = 300,c = 250, d = 500, e = 70)
-plot(y_true, type = "l")
+
+g_true = exp(-y_true*(1:N)/365)
+
 
 mat_obj = create_maturity_obj(maturities = readxl::read_excel("data/treasuries_quotes_23_12_22.xlsx", col_names = F),
                               max_maturity = N,
                               filter_90 = T)
 portfolio = sample_bonds_portfolio(maturity_obj = mat_obj,
                                    yield_str = y_true,
-                                   number_of_bonds = 250, 
+                                   number_of_bonds = 300, 
                                    max_maturity = N,
                                    noise = 1,
                                    filter_90 = T)
 
 #dup = duplicated(portfolio$Maturity)
 #sum(duplicated(portfolio$Maturity))
-#ytm 
-ytm = get_input_for_weights(portfolio$Cashflow, portfolio$Price)
-plot(x = ytm$Time_to_maturity, y = ytm$Yield_to_maturity)
+#get characteristics of bonds 
+portfolio_info = get_input_for_weights(portfolio$Cashflow, portfolio$Price)
+plot(x = portfolio_info$Time_to_maturity, y = portfolio_info$Yield_to_maturity)
 #remove dublicated values 
 
 
 #fb fit 
 fb_est = fb_fit(c_mat = portfolio$Cashflow, price_vec = portfolio$Price, max_mat = N)
-ttm = ytm$Time_to_maturity
+ttm = portfolio_info$Time_to_maturity
 ggplot(data = data.frame(fb_est, y_true), aes(x = seq(1,N)/365))+
   geom_point(aes(y = y), alpha = .1, size = .1) + 
   geom_line(aes(y = y_true),col = "red", linetype = "dotted", size = 1) + 
@@ -38,8 +41,12 @@ ggplot(data = data.frame(fb_est, y_true), aes(x = seq(1,N)/365))+
              aes(x = x, y = y), shape ="|", col = "blue", alpha = .5) + 
   geom_smooth(aes(y = y), size = .1, col = "green")
 
-plot(fb_est$fw_rate, type = "l")
 
+inv_weights = get_inv_weights(portfolio_info$Duration, B_vec = portfolio$Price)
+calc_rmse(g_true = g_true, 
+          g_est = fb_est$g, 
+          c_mat = portfolio$Cashflow, 
+          weights = 1/inv_weights)
 #fit to real data ----
 
 c_mat = as.matrix(read.csv("data/cashflow_2013-12-31.csv", header = F))
@@ -58,41 +65,27 @@ ggplot(data = data.frame(fb_est, time = seq(1,max(ttm))/365), aes(x = time))+
 
 #calc ytm -----
 
-implied_prices = rep(0, length(portfolio$Price))
 
-for (i in 1:length(implied_prices)) {
-  time_to_cashflow = which(portfolio$Cashflow[i,] != 0)
-  implied_prices[i] = portfolio$Cashflow[i,time_to_cashflow] %*% fb_est$g[time_to_cashflow]
-}
+true_ytm_dur = get_input_for_weights(C_mat = portfolio$Cashflow, 
+                                    B_vec = portfolio$True_price)
 
-est_ytm_dur = get_input_for_weights(C_mat = portfolio$Cashflow, 
-                                    B_vec = implied_prices)
+inv_weights = get_inv_weights(true_ytm_dur$Duration, portfolio$True_price)
 # in sample error
-sqrt(mean((implied_prices-portfolio$Price)^2))
-
+calc_rmse(g_true, g_est = fb_est$g, weights =1/inv_weights, c_mat = portfolio$Cashflow)
 
 ggplot(data = data.frame(est_ytm_dur), aes(x = Time_to_maturity, y = Yield_to_maturity)) + 
   geom_point() +
   geom_smooth()
 
-plot(implied_prices~portfolio$Price)
 
 #test shifting
 y_new = sample_yield_function(weights_function = weights_function, 
-                               max_maturity = N, 
-                               a = 0.0006, b = 300,c = 250, d = 500, e = 70)
+                               max_maturity = N)
 
 shifted_portfolio = shift_portfolio(new_yield_curve = y_new,
                                     portfolio = portfolio,
                                     noise = 1)
 # out sample error
-implied_prices = rep(0, length(shifted_portfolio$Price))
-for (i in 1:length(implied_prices)) {
-  time_to_cashflow = which(shifted_portfolio$Cashflow[i,] != 0)
-  implied_prices[i] = shifted_portfolio$Cashflow[i,time_to_cashflow] %*% fb_est$g[time_to_cashflow]
-}
-
-est_ytm_dur = get_input_for_weights(C_mat = shifted_portfolio$Cashflow, 
-                                    B_vec = implied_prices)
-sqrt(mean((implied_prices-shifted_portfolio$Price)^2))
-sum(portfolio$Cashflow[,2:N] != shifted_portfolio$Cashflow[,1:(N-1)])
+portfolio_info = get_input_for_weights(shifted_portfolio$Cashflow, shifted_portfolio$True_price)
+inv_weights = get_inv_weights(duration = portfolio_info$Duration, shifted_portfolio$True_price)
+calc_rmse(y_true = y_new, y_est = fb_est$y, c_mat = shifted_portfolio$Cashflow, weights = 1/inv_weights)

@@ -18,8 +18,7 @@ sample_yield_function = function(weights_function, max_maturity = 30*365,
   }
   return(y)
 }
-y_true = sample_yield_function(weights_function, a = 0.002 , b = 200, c = 1500, d = 5000 , e = 25)
-plot(y_true, type ="l")
+
 # distribution of maturity
 # requires lubridate package
 create_maturity_obj = function(maturities, max_maturity = 30*365, filter_90 = T){
@@ -97,9 +96,11 @@ sample_bond = function(maturity_obj,
                        filter_90 = T){
   c_vec  = sample_bond_cashflow(maturity_obj, max_maturity, filter_90 = filter_90)
   price = get_bond_price(c_vec, yield_str = yield_str,noise = noise)
+  true_price = get_bond_price(c_vec, yield_str = yield_str,noise = 0)
   return(list(
     Cashflow_Vector = c_vec,
     Price = price,
+    True_price = true_price,
     Maturity = which.max(c_vec)
   ))
 }
@@ -112,6 +113,7 @@ sample_bonds_portfolio = function(maturity_obj,
                                   filter_90 = T){
   C = matrix(0, nrow = number_of_bonds, ncol = max_maturity)
   B = rep(0,number_of_bonds)
+  B_true = rep(0,number_of_bonds)
   Mat = rep(0,number_of_bonds)
   for (i in 1:number_of_bonds) {
     bond = sample_bond(maturity_obj = maturity_obj, 
@@ -121,11 +123,13 @@ sample_bonds_portfolio = function(maturity_obj,
                        filter_90 = filter_90)
     C[i,] = bond$Cashflow_Vector
     B[i] = bond$Price[1]
+    B_true[i] = bond$True_price[1]
     Mat[i] = bond$Maturity[1]
   }
   return(list(
     Cashflow = C, 
     Price = B, 
+    True_price = B_true,
     Maturity = Mat
   ))
   
@@ -139,14 +143,19 @@ shift_portfolio = function(new_yield_curve, portfolio, noise = 1){
   c_mat[,max_mat] = 0
   n_bonds = length(portfolio$Price)
   price = rep(0,n_bonds)
+  true_price = price
   for(i in 1:n_bonds){
     price[i] = get_bond_price(C_vec = c_mat[i,],
                               yield_str =new_yield_curve,
                               noise = noise)
+    true_price[i] = get_bond_price(C_vec = c_mat[i,],
+                                   yield_str =new_yield_curve,
+                                   noise = 0)
   }
   return(list(
     Cashflow = c_mat, 
     Price = price, 
+    True_price = true_price,
     Maturity = portfolio$Maturity-1
   ))
 }
