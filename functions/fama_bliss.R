@@ -53,7 +53,7 @@ function_for_nleq = function(forward_rate, # given by the solver
 
 
 
-fb_fit = function(c_mat, 
+fb_solve = function(c_mat, 
                   price_vec, 
                   max_mat = 30*365){
   ttm = apply(c_mat, 1, which.max) # find maximum in each row

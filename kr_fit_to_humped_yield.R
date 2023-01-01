@@ -29,17 +29,17 @@ mat_obj = create_maturity_obj(mat_sheet,
 portfolio = sample_bonds_portfolio(maturity_obj = mat_obj,
                                    yield_str = y_true, 
                                    number_of_bonds = 250,
-                                  max_maturity = N, 
-                                  noise = 1)
+                                   max_maturity = N,
+                                   noise = 1)
 
-#get yields
+#get weights by using the TRUE pricing 
 
-data_for_weigths = get_input_for_weights(C_mat = portfolio$Cashflow, 
-                                        B_vec = portfolio$Price)
+portfolio_info = get_input_for_weights(C_mat = portfolio$Cashflow, 
+                                        B_vec = portfolio$True_price)
 
 
-inv_weights = get_inv_weights(duration = data_for_weigths$Duration, 
-                              B_vec = portfolio$Price)
+inv_weights = get_inv_weights(duration = portfolio_info$Duration, 
+                              B_vec = portfolio$True_price)
 
 # fit model
 
@@ -49,9 +49,10 @@ alpha = 0.05
 delta = 0
 K = create_kernel_mat(alpha = alpha,
                       delta = delta,
-                      n_row = N, n_col = N)
+                      n_row = N, 
+                      n_col = N)
 
-fitted_curves = KR_solv(C = portfolio$Cashflow,
+fitted_curves = KR_solve(C = portfolio$Cashflow,
                         B = portfolio$Price,
                         ridge = penalty,
                         inv_w = inv_weights, 
@@ -66,7 +67,7 @@ ggplot(data = data.frame(time_grid,fitted_curves),
 
 #testing
 
-calc_rmse(g_true = g_true, 
-          g_est = fitted_curves$g, 
+calc_rmse(y_true =  y_true, 
+          y_est =  fitted_curves$y, 
           c_mat = portfolio$Cashflow,
-          weights = (inv_weights)^-1)
+          weights = 1/inv_weights)

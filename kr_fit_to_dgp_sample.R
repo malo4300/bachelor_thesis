@@ -8,6 +8,7 @@ library(tidyverse)
 #Setting Parameters ----
 alpha = 0.05
 delta = 0
+penalty = 1
 N = 30*365
 #make Kernel Matrix
 K = create_kernel_mat(alpha, delta, N,N)
@@ -39,8 +40,8 @@ inv_w = get_inv_weights(portfolio_info$Duration, B)
 
 #Fit model ----
 
-penalty = 1
-fitted_curves = KR_solv(C = C,
+
+KR_Fit = KR_solve(C = C,
                         B = B,
                         ridge = penalty,
                         inv_w = inv_w, 
@@ -48,7 +49,7 @@ fitted_curves = KR_solv(C = C,
 
 #plot interpolation
 max_time_to_mat = max(portfolio_info$Time_to_maturity)
-ggplot(fitted_curves[1:max_time_to_mat,],
+ggplot(KR_Fit[1:max_time_to_mat,],
        aes(x = (1:max_time_to_mat)/365)) + 
   geom_line(mapping = aes(y = g)) +
   scale_y_continuous(labels = scales::label_comma())+
@@ -57,7 +58,7 @@ ggplot(fitted_curves[1:max_time_to_mat,],
 
 plot(ytm~I(portfolio_info$Time_to_maturity/365))
 
-calc_rmse(g_true = g_true, g_est = fitted_curves$g, 
+calc_rmse(g_true = g_true, g_est = KR_Fit$g, 
           weights = (1/inv_w), c_mat = C)
 
 

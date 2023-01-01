@@ -1,8 +1,8 @@
 source("functions/kernel_matrix.R")
-source("functions/ytm_and_duration.R")
 source("functions/portfolio_characteristics.R")
 source("functions/fama_bliss.R")
 source("functions/loss_functions.R")
+#Libraries
 library(tidyverse)
 library(scales)
 #Setting Parameters ----
@@ -14,8 +14,8 @@ K = create_kernel_mat(alpha, delta, N,N)
 
 #load data and create weights ----
 
-B = as.vector(read.csv(file = "data/price_sample1.csv",header =F)[,1])
-C = as.matrix(read.csv("data/Cashflow_sample1.csv", header = F))
+B = as.vector(read.csv(file = "data/price_1961-06-30.csv",header =F)[,1])
+C = as.matrix(read.csv("data/cashflow_1961-06-30.csv", header = F))
 number_of_bonds = length(B)
 
 #get yield and duration for weights
@@ -30,19 +30,19 @@ plot(ytm~I(ttm/365))
 
 penalty = 1
 #KR
-fitted_curves = KR_solv(C = C,
-                        B = B,
-                        ridge = penalty,
-                        inv_w = inv_w, 
-                        K = K)
+kr_fit = KR_solve(C = C,
+                  B = B,
+                  ridge = penalty,
+                  inv_w = inv_w, 
+                  K = K)
 
 #FB
-fb_est = fb_fit(c_mat = C, price_vec = B, max_mat = N)
+fb_est = fb_solve(c_mat = C, price_vec = B, max_mat = N)
 
 
 #plot interpolation ----
 max_time_to_mat = max(ttm)
-ggplot(data = data.frame(fitted_curves, fb_est), aes(x = (1:N)/365)) + 
+ggplot(data = data.frame(kr_fit, fb_est), aes(x = (1:N)/365)) + 
   geom_line(mapping = aes(y = fitted_curves$y, colour = "Kernel-Ridge")) +
   geom_line(mapping = aes(y = fb_est$y, colour = "Fama-Bliss")) + 
   scale_y_continuous(labels = scales::label_comma()) + 

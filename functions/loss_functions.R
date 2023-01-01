@@ -1,3 +1,4 @@
+#calculates the rmse for the estimated and true yield curve
 calc_rmse = function(y_true, y_est, c_mat, weights = 1){
   number_of_bonds = nrow(c_mat)
   N = ncol(c_mat)

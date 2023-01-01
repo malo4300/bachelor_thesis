@@ -56,7 +56,7 @@ create_kernel_mat = function(alpha,
 
 
 # Solver for the Model, returns discount and yield curve
-KR_solv = function(
+KR_solve = function(
     C, # the final cashflow matrix
     B, # the prices of the bonds
     ridge, # penalty coefficient
