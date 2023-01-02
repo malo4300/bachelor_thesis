@@ -37,20 +37,33 @@ kr_fit = KR_solve(C = C,
                   K = K)
 
 #FB
-fb_est = fb_solve(c_mat = C, price_vec = B, max_mat = N)
+fb_fit = fb_solve(c_mat = C, price_vec = B, max_mat = N)
 
 
 #plot interpolation ----
 max_time_to_mat = max(ttm)
-ggplot(data = data.frame(kr_fit, fb_est), aes(x = (1:N)/365)) + 
-  geom_line(mapping = aes(y = fitted_curves$y, colour = "Kernel-Ridge")) +
+ggplot(data = data.frame(kr_fit, fb_fit), aes(x = (1:max(N))/365)) + 
+  geom_line(mapping = aes(y = kr_fit$y, colour = "Kernel-Ridge")) +
   geom_line(mapping = aes(y = fb_est$y, colour = "Fama-Bliss")) + 
   scale_y_continuous(labels = scales::label_comma()) + 
   scale_color_manual(name = "Models",
                      breaks =  c("Kernel-Ridge", "Fama-Bliss"), 
                      values  = c("blue", "green")) + 
   ylab("Estimation of the yield curve") +
-  xlab("Time to Maturity of zero coupon bond")
+  xlab("Time to Maturity of zero coupon bond") +
+  xlim(c(0,max_time_to_mat/365))
 
+# calc misspricing
+kr_prices = rep(0, length(B))
+fb_prices = rep(0, length(B))
 
+for(i in 1:length(B)){
+  payment_days = which(C[i,]!=0)
+  kr_prices[i] = C[i,payment_days] %*% kr_fit$g[payment_days]
+  fb_prices[i] = C[i,payment_days] %*% fb_fit$g[payment_days]
+}
 
+sqrt(mean((1/inv_w)*(B-kr_prices)^2)) 
+sqrt(mean((1/inv_w)*(B-fb_prices)^2))
+
+# fb has better pricing in sample 
