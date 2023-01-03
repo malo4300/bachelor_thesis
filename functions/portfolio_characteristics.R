@@ -49,5 +49,5 @@ get_input_for_weights = function(C_mat, B_vec){
 
 
 get_inv_weights = function(duration, B_vec){
-  return((duration*B_vec)^2*length(B_vec))
+  return(((duration*B_vec)^2)*length(B_vec))
 }

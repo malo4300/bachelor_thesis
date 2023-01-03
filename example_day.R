@@ -67,3 +67,4 @@ sqrt(mean((1/inv_w)*(B-kr_prices)^2))
 sqrt(mean((1/inv_w)*(B-fb_prices)^2))
 
 # fb has better pricing in sample 
+
