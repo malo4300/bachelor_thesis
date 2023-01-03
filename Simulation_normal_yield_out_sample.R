@@ -64,8 +64,7 @@ for(i in 1:length(noise_grid)){
                                 penalty_for_KR = penalty,
                                 number_of_bonds = number_of_bonds, 
                                 noise = noise_grid[i], 
-                                max_maturity = N,
-                                calc_for_maturity_buckets = F)
+                                max_maturity = N)
     
     FB_true_RMSE[j] = output$FB_Results$True_RSME
     FB_obs_RMSE[j] = output$FB_Results$Obs_RSME

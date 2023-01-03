@@ -35,16 +35,16 @@ create_maturity_obj = function(maturities, max_maturity = 30*365, filter_90 = T)
 }
 # function to sample from the estimated density of maturities
 sample_maturity = function(maturity_obj, max_maturity = 30*365, filter_90 = T){
-  bw = maturity_obj$density$bw # bw is variance
+  bw = maturity_obj$density$bw # bw is standard deviation
   mean = sample(maturity_obj$days_left, 1)
-  sample = round(rnorm(1, mean =mean , sd = sqrt(bw)),0)
+  sample = round(rnorm(1, mean =mean , sd = bw),0)
   if(filter_90){
     lower_bound = 90
   } else{
     lower_bound = 0
   }
   while (sample <= lower_bound || sample > max_maturity) {
-    sample = round(rnorm(1, mean =mean , sd = sqrt(bw)),0)
+    sample = round(rnorm(1, mean =mean , sd = bw),0)
   }
   return(sample)
 }
@@ -57,7 +57,7 @@ sample_bond_cashflow = function(maturity_obj, max_maturity = 30*365, filter_90 =
   C_vec = rep(0,max_maturity)
   no_payments = ceiling((maturity/365)*2)
   cupon = round(runif(n = 1,
-                min = 2,
+                min = .5,
                 max = 4),2) #random cupon payments rounded to two decimal points
   C_vec[maturity] = 100 + cupon
   if(no_payments > 1){
@@ -143,7 +143,7 @@ shift_portfolio = function(new_yield_curve, portfolio, noise = 1){
   c_mat[,max_mat] = 0
   n_bonds = length(portfolio$Price)
   price = rep(0,n_bonds)
-  true_price = price
+  true_price = rep(0,n_bonds)
   for(i in 1:n_bonds){
     price[i] = get_bond_price(C_vec = c_mat[i,],
                               yield_str =new_yield_curve,

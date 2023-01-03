@@ -11,7 +11,7 @@ calc_true_rmse = function(y_true, y_est, c_mat, weights = 1){
     true_price[i] = c_mat[i, days_with_payment] %*% g_true[days_with_payment]
     pred_price[i] = c_mat[i, days_with_payment] %*% g_est[days_with_payment]
   }
-  return(sqrt((weights%*%(true_price-pred_price)^2)))
+  return(sqrt(mean(weights*(true_price-pred_price)^2)))
 }
 #calculates the observed rmse
 calc_obs_rmse = function(prices_obs, y_est, c_mat, weights = 1){
@@ -23,7 +23,7 @@ calc_obs_rmse = function(prices_obs, y_est, c_mat, weights = 1){
     days_with_payment = which(c_mat[i,]!=0)
     pred_price[i] = c_mat[i, days_with_payment] %*% g_est[days_with_payment]
   }
-  return(sqrt((weights%*%((prices_obs-pred_price)^2))))
+  return(sqrt(mean(weights*((prices_obs-pred_price)^2))))
 }
 
 calc_in_sample_error = function(y_true, 
@@ -34,9 +34,9 @@ calc_in_sample_error = function(y_true,
                                 obs_inv_w){
   
   Error_true = calc_true_rmse(y_true = y_true,
-                                 y_est = y_fit,
-                                 c_mat = C, 
-                                 weights = 1/true_inv_weights)
+                              y_est = y_fit,
+                              c_mat = C,
+                              weights = 1/true_inv_weights)
   
   #Calculate observed RMSE, the difference can be seen as an indicator of overfitting
   Error_obs = calc_obs_rmse(prices_obs = B, 
@@ -49,6 +49,7 @@ calc_in_sample_error = function(y_true,
   return(list("True_RSME" = Error_true,
               "Obs_RSME" = Error_obs))
 }
+
 #function to split the portfolio in different maturity buckets
 #it is only intended for the whole time horizon
 get_maturity_buckets = function(ttm){

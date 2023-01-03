@@ -62,8 +62,7 @@ out_sample_results =function(y_true,
                              penalty_for_KR = 1,
                              number_of_bonds = 250, 
                              noise = 1, 
-                             max_maturity = 30*365,
-                             calc_for_maturity_buckets = F){
+                             max_maturity = 30*365){
   #Sample Bonds
   sample_data = sample_bonds_portfolio(maturity_obj = mat_object,
                                        yield_str = y_true, 
@@ -95,10 +94,12 @@ out_sample_results =function(y_true,
   shifted_portfolio = shift_portfolio(new_yield_curve = y_new,
                                       portfolio = sample_data,
                                       noise = noise)
-  portfolio_info = get_input_for_weights(C_mat = shifted_portfolio$Cashflow,
+  #observed portfolio info
+  portfolio_info_obs = get_input_for_weights(C_mat = shifted_portfolio$Cashflow,
                                          B_vec = shifted_portfolio$Price)
-  obs_inv_w = get_inv_weights(portfolio_info$Duration, shifted_portfolio$Price)
+  obs_inv_w = get_inv_weights(portfolio_info_obs$Duration, shifted_portfolio$Price)
   
+  #true portfolio info
   true_portfolio_info = get_input_for_weights(C_mat = shifted_portfolio$Cashflow,
                                               B_vec = shifted_portfolio$True_price)
   true_inv_weights = get_inv_weights(true_portfolio_info$Duration, shifted_portfolio$True_price)
@@ -122,7 +123,8 @@ out_sample_results =function(y_true,
 }
 
 
-#Calculate Maturity RMSE
+#Calculate Maturity RMSE 
+#not ready
 calc_for_maturity_buckets = F
 if(calc_for_maturity_buckets == T){
   maturity_buckets = get_maturity_buckets(portfolio_info$Time_to_maturity)

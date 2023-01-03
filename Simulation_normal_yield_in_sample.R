@@ -36,7 +36,7 @@ mat_object = create_maturity_obj(maturities = maturity_csv,
 
 #simulate results for different noise
 noise_grid = c(0,0.5,1,1.5,2)
-number_of_bonds = 200
+number_of_bonds = 200 #bonds per simualtion that are genreated
 number_of_simulations = 100
 results = data.frame(matrix(0, ncol = length(noise_grid), nrow = 4))
 colnames(results) = paste("noise =", noise_grid)

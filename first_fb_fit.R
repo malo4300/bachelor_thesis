@@ -44,10 +44,10 @@ ggplot(data = data.frame(fb_est, y_true), aes(x = seq(1,N)/365))+
 
 
 inv_weights = get_inv_weights(portfolio_info_true$Duration, B_vec = portfolio$True_price)
-calc_rmse(y_true= y_true,
-          y_est = fb_est$y,
-          c_mat = portfolio$Cashflow, 
-          weights = 1/inv_weights)
+inv_weights_obs = get_inv_weights(portfolio_info_est$Duration, B_vec = portfolio$Price)
+calc_in_sample_error(y_true = y_true,
+                     y_fit = fb_est$y, C = portfolio$Cashflow, B = portfolio$Price, true_inv_weights = inv_weights,
+                     obs_inv_w = inv_weights_obs)
 #fit to real data ----
 
 c_mat = as.matrix(read.csv("data/cashflow_2013-12-31.csv", header = F))
