@@ -13,9 +13,10 @@ y_true = sample_yield_function(weights_function = weights_function,
 g_true = exp(-y_true*(1:N)/365)
 
 
-mat_obj = create_maturity_obj(maturities = readxl::read_excel("data/treasuries_quotes_23_12_22.xlsx", col_names = F),
+mat_obj = create_maturity_obj(maturities = readxl::read_excel("data/treasuries_quotes_03_01_23.xlsx", col_names = F),
                               max_maturity = N,
-                              filter_90 = T)
+                              filter_90 = T)#
+
 portfolio = sample_bonds_portfolio(maturity_obj = mat_obj,
                                    yield_str = y_true,
                                    number_of_bonds = 300, 
@@ -33,7 +34,11 @@ plot(x = portfolio_info_est$Time_to_maturity, y = portfolio_info_est$Yield_to_ma
 
 
 #fb fit 
-fb_est = fb_solve(c_mat = portfolio$Cashflow, price_vec = portfolio$Price, max_mat = N)
+fb_est = fb_solve(c_mat = portfolio$Cashflow, 
+                  price_vec = portfolio$Price, 
+                  max_mat = N)
+
+
 ttm = portfolio_info_true$Time_to_maturity
 ggplot(data = data.frame(fb_est, y_true), aes(x = seq(1,N)/365))+
   geom_point(aes(y = y), alpha = .1, size = .1) + 
@@ -46,21 +51,26 @@ ggplot(data = data.frame(fb_est, y_true), aes(x = seq(1,N)/365))+
 inv_weights = get_inv_weights(portfolio_info_true$Duration, B_vec = portfolio$True_price)
 inv_weights_obs = get_inv_weights(portfolio_info_est$Duration, B_vec = portfolio$Price)
 calc_in_sample_error(y_true = y_true,
-                     y_fit = fb_est$y, C = portfolio$Cashflow, B = portfolio$Price, true_inv_weights = inv_weights,
+                     y_fit = fb_est$y, 
+                     C = portfolio$Cashflow, 
+                     B = portfolio$Price, 
+                     true_inv_weights = inv_weights,
                      obs_inv_w = inv_weights_obs)
 #fit to real data ----
 
 c_mat = as.matrix(read.csv("data/cashflow_2013-12-31.csv", header = F))
 price_vec = as.vector(read.csv("data/price_2013-12-31.csv", header = F)[,1])
 ttm = apply(c_mat, 1, which.max)
-duplicates = duplicated(ttm)
-sum(duplicates)
-c_mat_without_dup = c_mat[!duplicates,]
-price_vec_without_dup = price_vec[!duplicates]
+#duplicates = duplicated(ttm)
+#sum(duplicates)
+#c_mat_without_dup = c_mat[!duplicates,]
+#price_vec_without_dup = price_vec[!duplicates]
 
 
 #fit
-fb_est = fb_solve(c_mat = c_mat_without_dup, price_vec = price_vec_without_dup, max_mat = max(ttm))
+fb_est = fb_solve(c_mat = c_mat, 
+                  price_vec = price_vec, 
+                  max_mat = max(ttm))
 ggplot(data = data.frame(fb_est, time = seq(1,max(ttm))/365), aes(x = time))+
   geom_line(aes(y = y))
 
@@ -72,10 +82,10 @@ true_ytm_dur = get_input_for_weights(C_mat = portfolio$Cashflow,
 
 inv_weights = get_inv_weights(true_ytm_dur$Duration, portfolio$True_price)
 # in sample error
-calc_rmse(y_true = y_true, 
-          y_est =  fb_est$y, 
-          weights =1/inv_weights, 
-          c_mat = portfolio$Cashflow)
+calc_obs_rmse(prices_obs = price_vec,
+              y_est = fb_est$y,
+              c_mat = c_mat, 
+              weights = 1/inv_weights)
 
 ggplot(data = data.frame(true_ytm_dur), aes(x = Time_to_maturity, y = Yield_to_maturity)) + 
   geom_point() +
@@ -90,9 +100,14 @@ shifted_portfolio = shift_portfolio(new_yield_curve = y_new,
                                     portfolio = portfolio,
                                     noise = 1)
 # out sample error
-portfolio_info = get_input_for_weights(shifted_portfolio$Cashflow, shifted_portfolio$True_price)
-inv_weights = get_inv_weights(duration = portfolio_info$Duration, shifted_portfolio$True_price)
-calc_rmse(y_true = y_new, 
-          y_est = fb_est$y, 
-          c_mat = shifted_portfolio$Cashflow, 
-          weights = 1/inv_weights)
+portfolio_info_true = get_input_for_weights(shifted_portfolio$Cashflow, shifted_portfolio$True_price)
+portfolio_info_true_obs = get_input_for_weights(shifted_portfolio$Cashflow, shifted_portfolio$Price)
+true_inv_weights = get_inv_weights(duration = portfolio_info_true$Duration, shifted_portfolio$True_price)
+obs_inv_weights =  get_inv_weights(duration = portfolio_info_true_obs$Duration, shifted_portfolio$Price)
+
+calc_in_sample_error(y_true = y_new, 
+                    C = shifted_portfolio$Cashflow,
+                    B = shifted_portfolio$Price,
+                    y_fit = fb_est$y, 
+                    true_inv_weights = true_inv_weights,
+                    obs_inv_w = obs_inv_weights)

@@ -18,7 +18,7 @@ y_true = sample_yield_function(weights_function = weights_function,
 plot(y_true)
 g_true = exp(-y_true*(1:N)/365)
 #create Maturity object
-maturity_csv = readxl::read_excel("data/treasuries_quotes_23_12_22.xlsx", col_names = F, range = "A1:A500")
+maturity_csv = readxl::read_excel("data/treasuries_quotes_03_01_23.xlsx", col_names = F, range = "A1:A500")
 mat_object = create_maturity_obj(maturities = maturity_csv,
                                  max_maturity = N, 
                                  filter_90 = T) # 90 day filter
@@ -42,10 +42,10 @@ inv_w = get_inv_weights(portfolio_info$Duration, B)
 
 
 KR_Fit = KR_solve(C = C,
-                        B = B,
-                        ridge = penalty,
-                        inv_w = inv_w, 
-                        K = K)
+                  B = B,
+                  ridge = penalty,
+                  inv_w = inv_w, 
+                  K = K)
 
 #plot interpolation
 max_time_to_mat = max(portfolio_info$Time_to_maturity)
@@ -58,7 +58,8 @@ ggplot(KR_Fit[1:max_time_to_mat,],
 
 plot(ytm~I(portfolio_info$Time_to_maturity/365))
 
-calc_rmse(g_true = g_true, g_est = KR_Fit$g, 
-          weights = (1/inv_w), c_mat = C)
-
+calc_obs_rmse(prices_obs = B,
+              y_est = KR_Fit$y,
+              c_mat = C, 
+              weights = 1/inv_w)
 

@@ -37,7 +37,9 @@ kr_fit = KR_solve(C = C,
                   K = K)
 
 #FB
-fb_fit = fb_solve(c_mat = C, price_vec = B, max_mat = N)
+fb_fit = fb_solve(c_mat = C, 
+                  price_vec = B, 
+                  max_mat = N)
 
 
 #plot interpolation ----

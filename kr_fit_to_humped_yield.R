@@ -30,16 +30,23 @@ portfolio = sample_bonds_portfolio(maturity_obj = mat_obj,
                                    yield_str = y_true, 
                                    number_of_bonds = 250,
                                    max_maturity = N,
-                                   noise = 1)
+                                   noise = 1,
+                                   filter_90 = T)
 
 #get weights by using the TRUE pricing 
 
 portfolio_info = get_input_for_weights(C_mat = portfolio$Cashflow, 
                                         B_vec = portfolio$True_price)
 
+portfolio_info_obs = get_input_for_weights(C_mat = portfolio$Cashflow, 
+                                       B_vec = portfolio$Price)
 
 inv_weights = get_inv_weights(duration = portfolio_info$Duration, 
                               B_vec = portfolio$True_price)
+
+obs_inv_weights = get_inv_weights(duration = portfolio_info$Duration, 
+                                  B_vec = portfolio$Price)
+
 
 # fit model
 
@@ -67,7 +74,9 @@ ggplot(data = data.frame(time_grid,fitted_curves),
 
 #testing
 
-calc_rmse(y_true =  y_true, 
-          y_est =  fitted_curves$y, 
-          c_mat = portfolio$Cashflow,
-          weights = 1/inv_weights)
+calc_in_sample_error(y_true =  y_true,
+                     y_fit = fitted_curves$y,
+                     C =  portfolio$Cashflow,
+                     B = portfolio$True_price,
+                     true_inv_weights = inv_weights,
+                     obs_inv_w = obs_inv_weights)

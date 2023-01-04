@@ -28,7 +28,7 @@ K_Matrix = create_kernel_mat(alpha = alpha,
                              n_col = N)
 
 #Create Maturity object to sample from
-maturity_csv = readxl::read_excel("data/treasuries_quotes_23_12_22.xlsx", col_names = F, range = "A1:A500")
+maturity_csv = readxl::read_excel("data/treasuries_quotes_03_01_23.xlsx", col_names = F, range = "A1:A500")
 mat_object = create_maturity_obj(maturities = maturity_csv,
                                  max_maturity = N, 
                                  filter_90 = T) # 90 day filter
@@ -78,6 +78,6 @@ for(i in 1:length(noise_grid)){
 #test_output$Maturity_Buckets_Results["7Y to 10Y",]
 #test_output$In_Sample_Results
 plot(unlist(results[2,])~noise_grid, col = "red")
-plot(unlist(results[4,])~noise_grid, col ="blue")
-points(unlist(results[2,])~noise_grid, col = "red")
+plot(unlist(results[3,])~noise_grid, col ="blue")
+points(unlist(results[1,])~noise_grid, col = "red")
 write.table(results, "data/normal_yield_in_sample.csv")
