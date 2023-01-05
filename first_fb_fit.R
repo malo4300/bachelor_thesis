@@ -22,7 +22,7 @@ portfolio = sample_bonds_portfolio(maturity_obj = mat_obj,
                                    number_of_bonds = 300, 
                                    max_maturity = N,
                                    noise = 1,
-                                   filter_90 = T)
+                                   filter_90 = F)
 
 #dup = duplicated(portfolio$Maturity)
 #sum(duplicated(portfolio$Maturity))
@@ -41,7 +41,7 @@ fb_est = fb_solve(c_mat = portfolio$Cashflow,
 
 ttm = portfolio_info_true$Time_to_maturity
 ggplot(data = data.frame(fb_est, y_true), aes(x = seq(1,N)/365))+
-  geom_point(aes(y = y), alpha = .1, size = .1) + 
+  geom_line(aes(y = y), alpha = 1, size = .1) + 
   geom_line(aes(y = y_true),col = "red", linetype = "dotted", size = 1) + 
   geom_point(data = data.frame(x =seq(1:N)[ttm]/365, y = -0.005 ), 
              aes(x = x, y = y), shape ="|", col = "blue", alpha = .5) + 
@@ -56,7 +56,27 @@ calc_in_sample_error(y_true = y_true,
                      B = portfolio$Price, 
                      true_inv_weights = inv_weights,
                      obs_inv_w = inv_weights_obs)
-#fit to real data ----
+
+pred_price = rep(0,300)
+for (i in 1:300) {
+  days_with_payment = which(portfolio$Cashflow[i,]!=0)
+  pred_price[i] = portfolio$Cashflow[i, days_with_payment] %*% fb_est$g[days_with_payment]
+}
+pred_ytm = get_input_for_weights(portfolio$Cashflow, pred_price)$Yield_to_maturity
+
+ggplot(data = data.frame(portfolio_info_true, pred_ytm), 
+       aes(x = Time_to_maturity)) + 
+         geom_point(aes(y = pred_ytm), size = .1,  shape = 21, col = "darkgreen") +
+  geom_line(aes(y = pred_ytm), alpha = .1)+
+  geom_point(aes(y = Yield_to_maturity), size = .1,  shape = 21, col = "darkblue") +
+  
+
+
+
+
+
+
+#fit to real data -----
 
 c_mat = as.matrix(read.csv("data/cashflow_2013-12-31.csv", header = F))
 price_vec = as.vector(read.csv("data/price_2013-12-31.csv", header = F)[,1])

@@ -41,10 +41,10 @@ sample_maturity = function(maturity_obj, max_maturity = 30*365, filter_90 = T){
   if(filter_90){
     lower_bound = 90
   } else{
-    lower_bound = 0
+    lower_bound = 1 # allows for shifting of the portfolio
   }
   while (sample <= lower_bound || sample > max_maturity) {
-    sample = round(rnorm(1, mean =mean , sd = bw),0)
+    sample = round(rnorm(1, mean = sample(maturity_obj$days_left, 1) , sd = bw),0)
   }
   return(sample)
 }
@@ -57,10 +57,11 @@ sample_bond_cashflow = function(maturity_obj, max_maturity = 30*365, filter_90 =
   C_vec = rep(0,max_maturity)
   no_payments = ceiling((maturity/365)*2)
   cupon = round(runif(n = 1,
-                min = .5,
+                min = 2,
                 max = 4),2) #random cupon payments rounded to two decimal points
+  #cupon = 0 # for zero coupon 
   C_vec[maturity] = 100 + cupon
-  if(no_payments > 1){
+  if(no_payments>1){
     for (i in 2:no_payments) {
       if(i%%2 != 0){
         pay_date = maturity - ((i-1)/2)*365
@@ -82,9 +83,12 @@ get_bond_price = function(C_vec, yield_str, noise = 1){
   discount_curve = exp(-yield_str*seq(1,length(yield_str))/365)
   price = C_vec[payable_dates] %*% discount_curve[payable_dates]
   # add noice
-  price = price +  rnorm(1,0,noise)*(log(max(payable_dates))/(20+log(max(payable_dates))))
+  ttm = max(payable_dates)/365
+  time_factor = (exp(.5*ttm)/(exp(3)+exp(.5*ttm)))
+  
+  price = price + rnorm(1,0,noise) *time_factor
   #noise depends on maturity 
-  return(round(price,2))
+  return(round(price, 2))
 }
 
 

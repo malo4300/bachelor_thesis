@@ -7,9 +7,8 @@ get_ytm_and_duration = function(cashflow,
       return((sum(cashflow*exp((-time_to_cashflow/365)*y))-B_i)^2)
     }
     #optimize finds the smallest value. Since my ytm_func >= 0 the smallest value is the root
-    ytm_solved = optimize(ytm_func,
-                          lower = -1,
-                          upper = 1)$minimum
+    ytm_solved = nleqslv::nleqslv(x = 0, ytm_func, 
+                                  method = "Newton")$x
     
     dur_solved = sum((time_to_cashflow/365)*cashflow*exp((-time_to_cashflow/365)*ytm_solved))/B_i
     

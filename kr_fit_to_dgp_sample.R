@@ -27,7 +27,7 @@ sample_data = sample_bonds_portfolio(maturity_obj = mat_object,
                                      yield_str = y_true, 
                                      number_of_bonds = 300,
                                      max_maturity = N, 
-                                     noise = 1)
+                                     noise = 0)
 C = sample_data$Cashflow
 B = sample_data$Price
 number_of_bonds = length(B)
@@ -56,10 +56,10 @@ ggplot(KR_Fit[1:max_time_to_mat,],
   geom_line(aes(y = g_true[1:max_time_to_mat], col = "red"))
 
 
-plot(ytm~I(portfolio_info$Time_to_maturity/365))
 
 calc_obs_rmse(prices_obs = B,
               y_est = KR_Fit$y,
               c_mat = C, 
               weights = 1/inv_w)
+
 

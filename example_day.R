@@ -14,8 +14,8 @@ K = create_kernel_mat(alpha, delta, N,N)
 
 #load data and create weights ----
 
-B = as.vector(read.csv(file = "data/price_1961-06-30.csv",header =F)[,1])
-C = as.matrix(read.csv("data/cashflow_1961-06-30.csv", header = F))
+B = as.vector(read.csv(file = "data/price_2013-12-31.csv",header =F)[,1])
+C = as.matrix(read.csv("data/cashflow_2013-12-31.csv", header = F))
 number_of_bonds = length(B)
 
 #get yield and duration for weights
@@ -24,8 +24,8 @@ inv_w = get_inv_weights(portfolio_info$Duration, B_vec = B)
 
 #plotting ----
 ytm = portfolio_info$Yield_to_maturity
-ttm = portfolio_info$Time_to_maturity
-plot(ytm~I(ttm/365))
+ttm = portfolio_info$Time_to_maturity/365
+plot(ytm~I(ttm))
 #Fit model ----
 
 penalty = 1
