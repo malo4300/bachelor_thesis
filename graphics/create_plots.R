@@ -175,3 +175,16 @@ g5 = ggplot(data = data.frame(portfolio_info_true, fb_ytm, kr_ytm),
 
 ggsave(filename = "comp_fit.png", plot= g5, path = path, device='png', dpi=900, width  = 15, height = 10)
 
+
+# results
+results = read.table("data/normal_yield_in_sample.csv")
+
+
+
+ggplot(data = data.frame(noise = c(0, .5,1, 1.5, 2)),aes(x = noise))+ 
+  geom_point(aes(y = unlist(as.vector(results[1,])))) +
+  geom_point(aes(y = unlist(as.vector(results[3,]))))
+
+ggplot(data = data.frame(noise = c(0, .5,1, 1.5, 2)),aes(x = noise))+ 
+  geom_point(aes(y = unlist(as.vector(results[2,])))) +
+  geom_point(aes(y = unlist(as.vector(results[4,]))))

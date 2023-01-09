@@ -37,7 +37,7 @@ mat_object = create_maturity_obj(maturities = maturity_csv,
 #simulate results for different noise
 noise_grid = c(0,0.5,1,1.5,2)
 number_of_bonds = 200
-number_of_simulations = 100
+number_of_simulations = 5
 results = data.frame(matrix(0, ncol = length(noise_grid), nrow = 4))
 colnames(results) = paste("noise =", noise_grid)
 rownames(results) = c("FB_true_RMSE", "FB_obs_RMSE", "KR_true_RMSE", "KR_obs_RMSE")
@@ -79,5 +79,5 @@ for(i in 1:length(noise_grid)){
 
 
 write.table(results, "data/normal_yield_out_sample.csv")
-plot(unlist(results[2,]) ~ noise_grid, col = "red")
-points(unlist(results[4,]) ~ noise_grid, col = "blue")
+plot(unlist(results[1,]) ~ noise_grid, col = "darkgreen")
+points(unlist(results[3,]) ~ noise_grid, col = "darkred")
