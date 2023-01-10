@@ -24,7 +24,7 @@ sample_yield_function = function(weights_function, max_maturity = 30*365,
 create_maturity_obj = function(maturities, max_maturity = 30*365, filter_90 = T){
   maturities = na.omit(maturities)
   maturities = lubridate::mdy(maturities[[1]])
-  days_left = as.numeric(maturities - lubridate::dmy("23/12/22")) #deadline date
+  days_left = as.numeric(maturities - lubridate::dmy("03/01/23")) #deadline date
   days_left = days_left[days_left <= max_maturity]
   if(filter_90){
     days_left = days_left[90 < days_left]
@@ -86,7 +86,7 @@ get_bond_price = function(C_vec, yield_str, noise = 1){
   ttm = max(payable_dates)/365
   time_factor = (exp(.5*ttm)/(exp(3)+exp(.5*ttm)))
   
-  price = price + rnorm(1,0,noise) *time_factor
+  price = price + rnorm(1,0,noise) * time_factor
   #noise depends on maturity 
   return(round(price, 2))
 }
