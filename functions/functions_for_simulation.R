@@ -4,14 +4,15 @@ in_sample_results = function(y_true,
                              penalty_for_KR = 1,
                              number_of_bonds = 250, 
                              noise = 1, 
-                             max_maturity = 30*365){
+                             max_maturity = 30*365,
+                             filter_90 = T){
   #Sample Bonds
   sample_data = sample_bonds_portfolio(maturity_obj = mat_object,
                                        yield_str = y_true, 
                                        number_of_bonds = number_of_bonds,
                                        max_maturity = max_maturity, 
                                        noise = noise, 
-                                       filter_90 = T)
+                                       filter_90 = filter_90)
   C = sample_data$Cashflow
   B = sample_data$Price
   number_of_bonds = length(B)
@@ -63,14 +64,15 @@ out_sample_results =function(y_true,
                              penalty_for_KR = 1,
                              number_of_bonds = 250, 
                              noise = 1, 
-                             max_maturity = 30*365){
+                             max_maturity = 30*365,
+                             filter_90 = T){
   #Sample Bonds
   sample_data = sample_bonds_portfolio(maturity_obj = mat_object,
                                        yield_str = y_true, 
                                        number_of_bonds = number_of_bonds,
                                        max_maturity = max_maturity, 
                                        noise = noise, 
-                                       filter_90 = T)
+                                       filter_90 = filter_90)
   C = sample_data$Cashflow
   B = sample_data$Price
   number_of_bonds = length(B)

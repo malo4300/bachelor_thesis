@@ -11,7 +11,7 @@ path = "C:/Users/malo4/Documents/BA/3_Graphics/"
 maturity_csv = readxl::read_excel("data/treasuries_quotes_03_01_23.xlsx", col_names = F, range = "A1:A500")
 mat_object = create_maturity_obj(maturities = maturity_csv,
                                  max_maturity = 365*30, 
-                                 filter_90 = F) # 90 day filter
+                                 filter_90 = T) # 90 day filter
 
 extrafont::loadfonts(device="win")
 g = ggplot(data = data.frame(days_left = mat_object$days_left)) + 
@@ -19,37 +19,41 @@ g = ggplot(data = data.frame(days_left = mat_object$days_left)) +
                kernel = "gaussian",
                bw = "SJ-dpi", col = "darkblue", fill = "darkblue", alpha = .2) +
   labs(x = "Time-to-maturity (ttm) in years",
-       y = paste("Density estimation (Bandwidth = ", 
+       y = paste("Density estimation (bw = ", 
                  round(mat_object$density$bw/365,2), ")", sep  = "")) +
   geom_point(mapping = aes(x = days_left/365, y = 0), shape = "|", col = "darkblue", alpha =1) +
   theme_bw() +
-  scale_x_continuous(limits = c(0,30), expand = c(0,0,.01,0)) +
-  theme(text = element_text(size = 15))
+  scale_x_continuous(limits = c(0,30), expand = c(0,0,.01,0))  +
+  theme(text = element_text(size = 18)) 
 
 
 
+g
 name = "density.png"
 ggsave(filename = name,
       plot = g,
-       path = path, device='png', dpi=700)
+       path = path, device='png', dpi=900)
 
 
 # Normal Curve ----
-y_true = sample_yield_function(weights_function = weights_function,
-                               max_maturity = 30*365)
+set.seed(1)
+y_true = sample_yield_function(weights_function, max_maturity = 30*365)
 
 g2 = ggplot(data = data.frame(y = y_true, ttm = seq(1,30*365)/365), aes(x = ttm, y = y)) +
   geom_line(col = "darkblue") +
   labs(x = "Time-to-maturity (ttm) in years",y = "True yield curve" ) +
   theme_bw()+
-  scale_x_continuous(expand = c(0.02,0,.02,0))
-
+  scale_x_continuous(expand = c(0.02,0,0.02,0)) +
+  ylim(0,0.06)+
+  theme(text = element_text(size = 18)) 
+g2
 name = "true_yield_normal.png"
 ggsave(filename = name,
        plot= g2,
        path = path, device='png', dpi=700)
 
 # Humped curve -----
+set.seed(1)
 y_true_humped = sample_yield_function(weights_function = weights_function,
                                       a = 0.001,
                                       b = 200, 
@@ -63,12 +67,15 @@ g3 = ggplot(data = data.frame(y = y_true_humped, ttm = seq(1,30*365)/365),
   labs(x = "Time-to-maturity (ttm) in years", 
        y = "True yield curve" ) +
   theme_bw()  +
-  scale_x_continuous(expand = c(0.02,0,.02,0))
+  scale_x_continuous(expand = c(0.02,0,0.02,0)) +
+  ylim(0,0.06)+
+  theme(text = element_text(size = 18)) 
 
+g3
 name = "true_yield_humped.png"
 ggsave(filename = name,
        plot= g3,
-       path = path, device='png', dpi=700)
+       path = path, device='png', dpi=700) 
 
 
 # ytm for different noise of zero coupon bonds -----
