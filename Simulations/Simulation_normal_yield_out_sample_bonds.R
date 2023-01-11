@@ -9,6 +9,7 @@ source("functions/loss_functions.R")
 alpha = 0.05
 delta = 0
 penalty = 1
+noise = 1
 N = 30*365
 
 
@@ -26,15 +27,15 @@ mat_object = create_maturity_obj(maturities = maturity_csv,
 
 
 #simulate results for different noise
-noise_grid = c(0,0.5,1,1.5,2)
-number_of_bonds = 200
+
+bond_grid = c(50,100,150,200)
 number_of_simulations = 100
-results = data.frame(matrix(0, ncol = length(noise_grid), nrow = 4))
-colnames(results) = paste("noise =", noise_grid)
+results = data.frame(matrix(0, ncol = length(bond_grid), nrow = 4))
+colnames(results) = paste("No_Bonds =", bond_grid)
 rownames(results) = c("FB_true_RMSE", "FB_obs_RMSE", "KR_true_RMSE", "KR_obs_RMSE")
 
-pb = txtProgressBar(min = 1, max = length(noise_grid), style = 2)
-for(i in 1:length(noise_grid)){
+pb = txtProgressBar(min = 1, max = length(bond_grid), style = 2)
+for(i in 1:length(bond_grid)){
   setTxtProgressBar(pb,i)
   # simulation for each noise value
   FB_true_RMSE = rep(0,number_of_simulations)
@@ -44,18 +45,8 @@ for(i in 1:length(noise_grid)){
   for(j in 1:number_of_simulations){
     #Sample Yield Curve
     y_true = sample_yield_function(weights_function = weights_function,
-                                   a = 0.001,
-                                   b = 200,
-                                   c = 600,
-                                   d = 5000,
-                                   e = 2,
                                    max_maturity = N)
     y_new = sample_yield_function(weights_function = weights_function,
-                                  a = 0.001,
-                                  b = 200,
-                                  c = 600,
-                                  d = 5000,
-                                  e = 2,
                                   max_maturity = N)
     #Get results
     output = out_sample_results(y_true = y_true,
@@ -63,8 +54,8 @@ for(i in 1:length(noise_grid)){
                                 mat_obj = mat_object,
                                 Kernel_Matrix = K_Matrix,
                                 penalty_for_KR = penalty,
-                                number_of_bonds = number_of_bonds, 
-                                noise = noise_grid[i], 
+                                number_of_bonds = bond_grid[i], 
+                                noise = noise, 
                                 max_maturity = N)
     
     FB_true_RMSE[j] = output$FB_Results$True_RSME
@@ -79,6 +70,7 @@ for(i in 1:length(noise_grid)){
 }
 
 
-write.table(results, "data/humped_yield_out_sample.csv")
-plot(unlist(results[2,]) ~ noise_grid, col = "darkgreen")
-points(unlist(results[4,]) ~ noise_grid, col = "darkred")
+write.table(results, "data/normal_yield_out_sample_bonds.csv")
+plot(unlist(results[2,]) ~ bond_grid, col = "darkgreen", ylim = c(0,.0025))
+points(unlist(results[4,]) ~ bond_grid, col = "darkred")
+

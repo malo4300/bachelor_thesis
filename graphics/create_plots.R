@@ -112,17 +112,22 @@ name = "noise_grid_zero_coupon_ytm.png"
 ggsave(filename = name, plot= g4, path = path, device='png', dpi=900, width = 8, height = 8)
 
 # fit plot -----
+source("functions/functions_for_dgp.R")
 source("functions/fama_bliss.R")
 source("functions/kernel_matrix.R")
+source("functions/portfolio_characteristics.R")
 alpha = 0.05
 delta = 0
 max_maturity = 30*365
 number_of_bonds = 200
+N =30*365
 K = create_kernel_mat(alpha = alpha,
                       delta = delta, 
                       n_row = max_maturity, n_col = max_maturity)
 
 set.seed(1)
+y_true = sample_yield_function(weights_function = weights_function,
+                               max_maturity = N)
 portfolio = sample_bonds_portfolio(maturity_obj = mat_object,
                                    yield_str = y_true,
                                    number_of_bonds = number_of_bonds, 

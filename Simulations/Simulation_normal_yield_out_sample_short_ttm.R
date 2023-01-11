@@ -9,7 +9,7 @@ source("functions/loss_functions.R")
 alpha = 0.05
 delta = 0
 penalty = 1
-N = 30*365
+N = 10*365
 
 
 #Create Kernel Matrix
@@ -27,7 +27,7 @@ mat_object = create_maturity_obj(maturities = maturity_csv,
 
 #simulate results for different noise
 noise_grid = c(0,0.5,1,1.5,2)
-number_of_bonds = 200
+number_of_bonds = 50
 number_of_simulations = 100
 results = data.frame(matrix(0, ncol = length(noise_grid), nrow = 4))
 colnames(results) = paste("noise =", noise_grid)
@@ -44,18 +44,8 @@ for(i in 1:length(noise_grid)){
   for(j in 1:number_of_simulations){
     #Sample Yield Curve
     y_true = sample_yield_function(weights_function = weights_function,
-                                   a = 0.001,
-                                   b = 200,
-                                   c = 600,
-                                   d = 5000,
-                                   e = 2,
                                    max_maturity = N)
     y_new = sample_yield_function(weights_function = weights_function,
-                                  a = 0.001,
-                                  b = 200,
-                                  c = 600,
-                                  d = 5000,
-                                  e = 2,
                                   max_maturity = N)
     #Get results
     output = out_sample_results(y_true = y_true,
@@ -79,6 +69,6 @@ for(i in 1:length(noise_grid)){
 }
 
 
-write.table(results, "data/humped_yield_out_sample.csv")
-plot(unlist(results[2,]) ~ noise_grid, col = "darkgreen")
-points(unlist(results[4,]) ~ noise_grid, col = "darkred")
+write.table(results, "data/normal_yield_out_sample_short_ttm.csv")
+plot(unlist(results[1,]) ~ noise_grid, col = "darkgreen")
+points(unlist(results[3,]) ~ noise_grid, col = "darkred")

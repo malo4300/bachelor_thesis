@@ -23,7 +23,7 @@ calc_obs_rmse = function(prices_obs, y_est, c_mat, weights = 1){
     days_with_payment = which(c_mat[i,]!=0)
     pred_price[i] = c_mat[i, days_with_payment] %*% g_est[days_with_payment]
   }
-  return(sqrt(weights%*%((prices_obs-pred_price)^2)))
+  return(sqrt(weights%*%(prices_obs-pred_price)^2))
 }
 
 calc_in_sample_error = function(y_true, 
