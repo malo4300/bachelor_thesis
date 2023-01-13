@@ -2,8 +2,13 @@ library(tidyverse)
 library(ggtech)
 library(ggthemes)
 library(bbplot)
+library(gtable)
+library(gridExtra)
 library(scales)
 source("functions/functions_for_dgp.R")
+source("functions/fama_bliss.R")
+source("functions/kernel_matrix.R")
+source("functions/portfolio_characteristics.R")
 path = "C:/Users/malo4/Documents/BA/3_Graphics/"
 
 
@@ -118,11 +123,8 @@ g4
 name = "noise_grid_zero_coupon_ytm.png"
 ggsave(filename = name, plot= g4, path = path, device='png', dpi=900, width = 8, height = 8)
 
-# fit plot -----
-source("functions/functions_for_dgp.R")
-source("functions/fama_bliss.R")
-source("functions/kernel_matrix.R")
-source("functions/portfolio_characteristics.R")
+# ytm fit plot -----
+
 alpha = 0.05
 delta = 0
 max_maturity = 30*365
@@ -172,7 +174,7 @@ g5 = ggplot(data = data.frame(portfolio_info_true, fb_ytm, kr_ytm),
   geom_line(aes(y = kr_ytm, colour = "kr"), alpha = .2)+
   geom_point(aes(y = Yield_to_maturity, colour = "true"), size = 1,  shape = 21) +
   scale_color_manual(name = "",
-                     labels = c("Fama-Bliss", "True YTM", "Kernel Ridge"),
+                     labels = c("Fama-Bliss", "True YTM", "Kernel-Ridge"),
                      breaks = c("fb", "true", "kr"),
                      values = c("darkgreen", "darkblue", "darkred")) +
   labs(x = "Time-to-maturity (ttm) in years",
@@ -182,72 +184,24 @@ g5 = ggplot(data = data.frame(portfolio_info_true, fb_ytm, kr_ytm),
                                                    lty = "blank")))+
   scale_x_continuous(expand = c(0.02,0,0.02,0))+
   scale_y_continuous(expand = c(0.02,0,0.1,0)) + 
-  theme(text = element_text(size = 20),
-        strip.text.x = element_text(size = 20)) +
-  theme_bw()
-
-
-ggsave(filename = "comp_fit.png", plot= g5, path = path, device='png', dpi=900, width  = 15, height = 10)
-
-
-# results ----
-results = read.table("data/normal_yield_in_sample.csv")
-
-
-g6 = ggplot(data = data.frame(noise = c(0, .5,1, 1.5, 2)),aes(x = noise))+ 
-  geom_point(aes(y = unlist(as.vector(results[1,])), col = "fb"),size = 2, shape = 3) +
-  geom_line(aes(y = unlist(as.vector(results[1,])), colour = "fb"), alpha = .2)+
-  geom_point(aes(y = unlist(as.vector(results[3,])), col = "kr"),size = 2, shape = 4) +
-  geom_line(aes(y = unlist(as.vector(results[3,])), colour = "kr"), alpha = .2)+
-  scale_color_manual(name = "",
-                     labels = c("Fama-Bliss", "Kernel Ridge"),
-                     breaks = c("fb", "kr"),
-                     values = c("darkgreen", "darkred")) +
-  guides(colour = guide_legend(override.aes = list(size = 3,
-                                                   shape = c(3,4), 
-                                                   lty = "blank"))) +
-  labs(x = "",
-       y = "Average true RMSE") +
   theme_bw() +
-  scale_y_continuous(labels = comma)+
-  theme(text = element_text(size = 15), axis.title.x=element_blank())
+  theme(text = element_text(size = 20),
+        legend.text=element_text(size=15),
+        legend.position = "bottom",
+        strip.text.x = element_text(size = 20)) 
+g5
 
-legend = gtable_filter(ggplot_gtable(ggplot_build(g6 + theme(legend.position="bottom"))), "guide-box")
+ggsave(filename = "comp_fit.png", 
+       plot= g5, 
+       path = path, 
+       device='png',
+       dpi=900, 
+       width  = 12, 
+       height = 7)
+       
+g5       
+# ytm humped fit ----
 
-g7 = ggplot(data = data.frame(noise = c(0, .5,1, 1.5, 2)),aes(x = noise))+ 
-  geom_point(aes(y = unlist(as.vector(results[2,])), col = "fb"),size = 2, shape = 3) +
-  geom_line(aes(y = unlist(as.vector(results[2,])), colour = "fb"), alpha = .2)+
-  geom_point(aes(y = unlist(as.vector(results[4,])), col = "kr"),size = 2, shape = 4) +
-  geom_line(aes(y = unlist(as.vector(results[4,])), colour = "kr"), alpha = .2)+
-  scale_color_manual(name = "",
-                     labels = c("Fama-Bliss", "Kernel Ridge"),
-                     breaks = c("fb", "kr"),
-                     values = c("darkgreen", "darkred")) +
-  labs(x = "Noise grid",
-       y = "Average observed RMSE") +
-  theme_bw() + 
-  scale_y_continuous(labels = comma) +
-  theme(text = element_text(size = 15))
-  
-
-  #guides(colour = guide_legend(override.aes = list(size = 3,
-  #                                                shape = c(3,4), 
-  #                                                lty = "blank"))) 
-  
-library(gridExtra)
-legend = gtable_filter(ggplot_gtable(ggplot_build(g6 + theme(legend.position="bottom"))), "guide-box")
-gridExtra::grid.arrange(g6 + theme(legend.position="none"),
-                        g7 + theme(legend.position="none"), 
-                        #layout_matrix= cbind(c(1,2),c(3,3)),
-                        nrow = 3,
-                        ncol  = 1 ,
-                        legend,
-                        heights=c(0.45, .45, 0.1))
-
-
-# humped fit ----
-source("functions/fama_bliss.R")
-source("functions/kernel_matrix.R")
 alpha = 0.05
 delta = 0
 max_maturity = 30*365
@@ -300,7 +254,7 @@ g9 = ggplot(data = data.frame(portfolio_info_true, fb_ytm, kr_ytm),
   geom_line(aes(y = kr_ytm, colour = "kr"), alpha = .2)+
   geom_point(aes(y = Yield_to_maturity, colour = "true"), size = 1,  shape = 21) +
   scale_color_manual(name = "",
-                     labels = c("Fama-Bliss", "True YTM", "Kernel Ridge"),
+                     labels = c("Fama-Bliss", "True YTM", "Kernel-Ridge"),
                      breaks = c("fb", "true", "kr"),
                      values = c("darkgreen", "darkblue", "darkred")) +
   labs(x = "Time-to-maturity (ttm) in years",
@@ -310,11 +264,154 @@ g9 = ggplot(data = data.frame(portfolio_info_true, fb_ytm, kr_ytm),
                                                    lty = "blank")))+
   scale_x_continuous(expand = c(0.02,0,0.02,0))+
   scale_y_continuous(expand = c(0.02,0,0.1,0)) + 
+  theme_bw() +
   theme(text = element_text(size = 20),
-        strip.text.x = element_text(size = 20)) +
-  theme_bw()
+        legend.text=element_text(size=15),
+        legend.position = "bottom",
+        strip.text.x = element_text(size = 20)) 
 
 g9
-ggsave(filename = "comp_fit_humped.png", plot= g9 , path = path, device='png', dpi=1000, width  = 15, height = 10)
+ggsave(filename = "comp_fit_humped.png", 
+       plot= g9 , 
+       path = path, 
+       device='png',
+       dpi=900, 
+       width  = 12, 
+       height = 7)
 
 
+# normal fit -----
+alpha = 0.05
+delta = 0
+max_maturity = 30*365
+number_of_bonds = 200
+K = create_kernel_mat(alpha = alpha,
+                      delta = delta, 
+                      n_row = max_maturity, n_col = max_maturity)
+
+
+set.seed(1)
+y_true = sample_yield_function(weights_function = weights_function,
+                               max_maturity = max_maturity)
+portfolio = sample_bonds_portfolio(maturity_obj = mat_object,
+                                   yield_str = y_true,
+                                   number_of_bonds = number_of_bonds, 
+                                   max_maturity = max_maturity,
+                                   noise = 1,
+                                   filter_90 = T)
+
+fb_est = fb_solve(c_mat = portfolio$Cashflow, 
+                  price_vec = portfolio$Price, 
+                  max_mat = max_maturity)
+portfolio_info_true = get_input_for_weights(portfolio$Cashflow, portfolio$True_price)
+portfolio_info_obs = get_input_for_weights(portfolio$Cashflow, portfolio$Price)
+obs_inv_weigths = get_inv_weights(portfolio_info_obs$Duration, portfolio$Price)
+kr_fit = KR_solve(portfolio$Cashflow, 
+                  portfolio$Price, 
+                  ridge = 1, 
+                  inv_w =obs_inv_weigths,
+                  K = K)
+
+g10 = ggplot(data = data.frame(y_true,
+                               time = seq(1:max_maturity)/365,
+                               fb = fb_est$y, 
+                               kr = kr_fit$y))+ 
+            aes(x = time) + 
+  geom_line(aes(y = fb, colour = "fb"), alpha = 1, lty = "solid")+
+  geom_line(aes(y = kr, colour = "kr"), alpha = 1, lty = "solid")+
+  geom_line(aes(y = y_true, colour = "true"), alpha = .7, lty = "dotted") +
+  scale_color_manual(name = "",
+                     labels = c("Fama-Bliss", "True yield curve", "Kernel-Ridge"),
+                     breaks = c("fb", "true", "kr"),
+                     values = c("darkgreen", "darkblue", "darkred")) +
+  labs(x = "Time-to-maturity (ttm) in years",
+       y = "Yield curve")+
+  guides(colour = guide_legend(override.aes = list(size = 5,
+                                                   lty = c("solid",
+                                                           "dotted", 
+                                                           "solid"))))+
+  scale_x_continuous(expand = c(0.02,0,0.02,0))+
+  scale_y_continuous(expand = c(0.02,0,0.1,0)) + 
+  ylim(0,0.06)+
+  theme_bw() +
+  theme(text = element_text(size = 20),
+        legend.text=element_text(size=15),
+        legend.position = "bottom",
+        strip.text.x = element_text(size = 20)) 
+g10
+ggsave(filename = "fit.png", 
+       plot= g10 , 
+       path = path, 
+       device='png',
+       dpi=900, 
+       width  = 12, 
+       height = 7)
+
+set.seed(1)
+y_true = sample_yield_function(weights_function = weights_function,
+                               a = 0.001,
+                               b = 200,
+                               c = 600,
+                               d = 5000,
+                               e = 2,
+                               max_maturity = max_maturity)
+portfolio = sample_bonds_portfolio(maturity_obj = mat_object,
+                                   yield_str = y_true,
+                                   number_of_bonds = number_of_bonds, 
+                                   max_maturity = max_maturity,
+                                   noise = 1,
+                                   filter_90 = T)
+
+fb_est = fb_solve(c_mat = portfolio$Cashflow, 
+                  price_vec = portfolio$Price, 
+                  max_mat = N)
+kr_fit = KR_solve(portfolio$Cashflow, 
+                  portfolio$Price, 
+                  ridge = 1, 
+                  inv_w =obs_inv_weigths,
+                  K = K)
+
+
+
+g11 = ggplot(data = data.frame(y_true, 
+                               fb = fb_est$y, 
+                               kr = kr_fit$y), 
+             aes(x = seq(1:max_maturity)/365)) + 
+  geom_line(aes(y = fb, colour = "fb"), alpha = 1, lty = "solid")+
+  geom_line(aes(y = kr, colour = "kr"), alpha = 1, lty = "solid")+
+  geom_line(aes(y = y_true, colour = "true"), alpha = .7, lty = "dotted") +
+  scale_color_manual(name = "",
+                     labels = c("Fama-Bliss", "True yield curve", "Kernel-Ridge"),
+                     breaks = c("fb", "true", "kr"),
+                     values = c("darkgreen", "darkblue", "darkred")) +
+  labs(x = "Time-to-maturity (ttm) in years",
+       y = "")+
+  guides(colour = guide_legend(override.aes = list(size = 5,
+                                                   lty = c("solid",
+                                                           "dotted", 
+                                                           "solid"))))+
+  scale_x_continuous(expand = c(0.02,0,0.02,0))+
+  scale_y_continuous(expand = c(0.02,0,0.1,0)) +
+  ylim(0,0.06)+
+  theme_bw()
+
+g11
+
+legend = gtable_filter(ggplot_gtable(ggplot_build(g10 + theme(legend.position=c(.55, .65),
+                                                             legend.direction = "horizontal"))), "guide-box")
+
+g12 = gridExtra::grid.arrange(g10 + theme(legend.position="none"),
+                             g11 + theme(legend.position="none")+
+                               theme(text = element_text(size = 20)),
+                             layout_matrix= cbind(c(1,3),c(2,3)),
+                             nrow = 2,
+                             ncol  = 2 ,
+                             legend,
+                             heights=c(0.8, .1))
+ggsave(filename = "fit_comp.png", 
+       plot= g12 , 
+       path = path, 
+       device='png',
+       dpi=1000, 
+       width  = 13, 
+       height = 7)

@@ -1,15 +1,20 @@
 #weight function for the random yield walk
-weights_function = function(x, a = 0.005, b = 80, c = 1000, d =365*10 , e = 100){
+weights_function = function(x, 
+                            a = 0.0006, 
+                            b = 300, 
+                            c = 250, 
+                            d = 500,
+                            e = 70){ #introduce normal yield curve
   a*(exp(-(0.15*x)^1/b) - c*dlnorm(x = x, mean = log(d),sd = log(sqrt(e))))
 }
 
-#a decides the spike/convergence
-#b where the spike is
-#c how the tail is shaped
-#normal yield curve a [0.0005,0.001]
-
-sample_yield_function = function(weights_function, max_maturity = 30*365,
-                                 a = 0.0006, b = 300, c = 250, d = 500,e = 70){
+sample_yield_function = function(weights_function, 
+                                 max_maturity = 30*365,
+                                 a = 0.0006, 
+                                 b = 300, 
+                                 c = 250, 
+                                 d = 500,
+                                 e = 70){
   y = rep(0,max_maturity)
   y_minus_one = 0
   for (i in 1:length(y)) {
