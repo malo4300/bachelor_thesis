@@ -1,8 +1,8 @@
 #function that calculates the discount factor for solving for the forward rate. 
 d_tau = function(tau, f, ttm, ttm_minus_one, f_K = 0){
-  #ttm_minus_one indicates the place to which f is filled 
+  #ttm_minus_one indicates the place to which f is already estimated 
   #f_K is given by the solver 
-  #tau is by use smaller or equal than the the current ttm
+  #tau is by construction smaller or equal than the the current ttm
   sorted_ttm = sort(unique(ttm))
   if(ttm_minus_one == 0 ){ # get the first loop
     return(exp(-(f_K)*tau/365))
@@ -74,7 +74,7 @@ fb_solve = function(c_mat,
                                                         c_mat = c_mat,
                                                         current_ttm = current_ttm, 
                                                         price_vec = price_vec)
-                                      }, method = "Broyden")$x
+                                      }, method = "Newton")$x
     
     
     f[(ttm_minus_one+1):sorted_unique_ttm[i]] = solved_fw_rate

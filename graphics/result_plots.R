@@ -9,7 +9,7 @@ source("functions/functions_for_dgp.R")
 path = "C:/Users/malo4/Documents/BA/3_Graphics/"
 
 #results ----
-results = read.table("data/normal_yield_in_sample_filter_off.csv")
+results = read.table("data/normal_yield_out_sample_sd.csv")
 noise_grid = c(0, .5,1, 1.5, 2)
 bonds_grid = c(50,100,150,200)
 
@@ -26,7 +26,7 @@ g1 = ggplot(data = data.frame(noise = noise_grid),aes(x = noise))+
                                                    shape = c(3,4), 
                                                    lty = "blank"))) +
   labs(x = "",
-       y = "Average true RMSE") +
+       y = "Sd of true RMSE") +
   theme_bw() +
   scale_y_continuous(labels = comma)+
   theme(text = element_text(size = 20), 
@@ -45,7 +45,7 @@ g2 = ggplot(data = data.frame(noise = noise_grid),aes(x = noise))+
                      breaks = c("fb", "kr"),
                      values = c("darkgreen", "darkred")) +
   labs(x = "Level of noise",
-       y = "Average observed RMSE") +
+       y = "Sd of observed RMSE") +
   theme_bw() + 
   scale_y_continuous(labels = comma) +
   theme(text = element_text(size = 20))
@@ -64,7 +64,7 @@ g3 = gridExtra::grid.arrange(g1 + theme(legend.position="none"),
                         legend,
                         heights=c(0.45, .45, 0.1))
 g3
-ggsave(filename = "R_yield_in_sample_no_filter.png", 
+ggsave(filename = "R_yield_out_sample_sd.png", 
        plot= g3, 
        path = path, 
        device='png', 

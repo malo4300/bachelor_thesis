@@ -3,8 +3,6 @@ source("functions/portfolio_characteristics.R")
 source("functions/fama_bliss.R")
 source("functions/loss_functions.R")
 library(tidyverse)
-library(lubridate)
-library(nleqslv)
 #
 N = 365*30
 y_true = sample_yield_function(weights_function = weights_function, 
@@ -19,10 +17,10 @@ mat_obj = create_maturity_obj(maturities = readxl::read_excel("data/treasuries_q
 
 portfolio = sample_bonds_portfolio(maturity_obj = mat_obj,
                                    yield_str = y_true,
-                                   number_of_bonds = 300, 
+                                   number_of_bonds = 200, 
                                    max_maturity = N,
                                    noise = 1,
-                                   filter_90 = F)
+                                   filter_90 = T)
 
 #dup = duplicated(portfolio$Maturity)
 #sum(duplicated(portfolio$Maturity))
@@ -98,18 +96,14 @@ ggplot(data = data.frame(fb_est, time = seq(1,max(ttm))/365), aes(x = time))+
 
 
 true_ytm_dur = get_input_for_weights(C_mat = portfolio$Cashflow, 
-                                    B_vec = portfolio$True_price)
+                                    B_vec = portfolio$Price)
 
 inv_weights = get_inv_weights(true_ytm_dur$Duration, portfolio$True_price)
 # in sample error
-calc_obs_rmse(prices_obs = price_vec,
-              y_est = fb_est$y,
-              c_mat = c_mat, 
-              weights = 1/inv_weights)
+
 
 ggplot(data = data.frame(true_ytm_dur), aes(x = Time_to_maturity, y = Yield_to_maturity)) + 
-  geom_point() +
-  geom_smooth()
+  geom_point()
 
 
 #test shifting
@@ -131,3 +125,15 @@ calc_in_sample_error(y_true = y_new,
                     y_fit = fb_est$y, 
                     true_inv_weights = true_inv_weights,
                     obs_inv_w = obs_inv_weights)
+
+
+
+# smooth ----
+
+plot(y_true, type = "l", col = "blue")
+lines(fb_est$y, type = "l", col = "red")
+k_s = ksmooth(x = seq(1,N), y = fb_est$y, bandwidth = 250)
+lines(k_s$y, type = "l", col = "green")
+
+
+

@@ -100,12 +100,14 @@ out_sample_results =function(y_true,
   #observed portfolio info
   portfolio_info_obs = get_input_for_weights(C_mat = shifted_portfolio$Cashflow,
                                          B_vec = shifted_portfolio$Price)
-  obs_inv_w = get_inv_weights(portfolio_info_obs$Duration, shifted_portfolio$Price)
+  obs_inv_w = get_inv_weights(portfolio_info_obs$Duration, 
+                              shifted_portfolio$Price)
   
   #true portfolio info
   true_portfolio_info = get_input_for_weights(C_mat = shifted_portfolio$Cashflow,
                                               B_vec = shifted_portfolio$True_price)
-  true_inv_weights = get_inv_weights(true_portfolio_info$Duration, shifted_portfolio$True_price)
+  true_inv_weights = get_inv_weights(true_portfolio_info$Duration, 
+                                     shifted_portfolio$True_price)
   
   out_sample_error_KR = calc_in_sample_error(y_true = y_new,
                                             y_fit = KR_Fit$y, 

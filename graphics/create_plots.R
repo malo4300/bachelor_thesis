@@ -291,10 +291,10 @@ K = create_kernel_mat(alpha = alpha,
 
 
 set.seed(1)
-y_true = sample_yield_function(weights_function = weights_function,
+y_true_normal = sample_yield_function(weights_function = weights_function,
                                max_maturity = max_maturity)
 portfolio = sample_bonds_portfolio(maturity_obj = mat_object,
-                                   yield_str = y_true,
+                                   yield_str = y_true_normal,
                                    number_of_bonds = number_of_bonds, 
                                    max_maturity = max_maturity,
                                    noise = 1,
@@ -312,14 +312,14 @@ kr_fit = KR_solve(portfolio$Cashflow,
                   inv_w =obs_inv_weigths,
                   K = K)
 
-g10 = ggplot(data = data.frame(y_true,
+g10 = ggplot(data = data.frame(y_true_normal,
                                time = seq(1:max_maturity)/365,
                                fb = fb_est$y, 
                                kr = kr_fit$y))+ 
             aes(x = time) + 
   geom_line(aes(y = fb, colour = "fb"), alpha = 1, lty = "solid")+
   geom_line(aes(y = kr, colour = "kr"), alpha = 1, lty = "solid")+
-  geom_line(aes(y = y_true, colour = "true"), alpha = .7, lty = "dotted") +
+  geom_line(aes(y = y_true_normal, colour = "true"), alpha = .7, lty = "dotted") +
   scale_color_manual(name = "",
                      labels = c("Fama-Bliss", "True yield curve", "Kernel-Ridge"),
                      breaks = c("fb", "true", "kr"),
@@ -348,7 +348,7 @@ ggsave(filename = "fit.png",
        height = 7)
 
 set.seed(1)
-y_true = sample_yield_function(weights_function = weights_function,
+y_true_humped = sample_yield_function(weights_function = weights_function,
                                a = 0.001,
                                b = 200,
                                c = 600,
@@ -356,7 +356,7 @@ y_true = sample_yield_function(weights_function = weights_function,
                                e = 2,
                                max_maturity = max_maturity)
 portfolio = sample_bonds_portfolio(maturity_obj = mat_object,
-                                   yield_str = y_true,
+                                   yield_str = y_true_humped,
                                    number_of_bonds = number_of_bonds, 
                                    max_maturity = max_maturity,
                                    noise = 1,
@@ -364,7 +364,7 @@ portfolio = sample_bonds_portfolio(maturity_obj = mat_object,
 
 fb_est = fb_solve(c_mat = portfolio$Cashflow, 
                   price_vec = portfolio$Price, 
-                  max_mat = N)
+                  max_mat = max_maturity)
 kr_fit = KR_solve(portfolio$Cashflow, 
                   portfolio$Price, 
                   ridge = 1, 
@@ -373,13 +373,13 @@ kr_fit = KR_solve(portfolio$Cashflow,
 
 
 
-g11 = ggplot(data = data.frame(y_true, 
+g11 = ggplot(data = data.frame(y_true_humped, 
                                fb = fb_est$y, 
                                kr = kr_fit$y), 
              aes(x = seq(1:max_maturity)/365)) + 
   geom_line(aes(y = fb, colour = "fb"), alpha = 1, lty = "solid")+
   geom_line(aes(y = kr, colour = "kr"), alpha = 1, lty = "solid")+
-  geom_line(aes(y = y_true, colour = "true"), alpha = .7, lty = "dotted") +
+  geom_line(aes(y = y_true_humped, colour = "true"), alpha = .7, lty = "dotted") +
   scale_color_manual(name = "",
                      labels = c("Fama-Bliss", "True yield curve", "Kernel-Ridge"),
                      breaks = c("fb", "true", "kr"),
@@ -402,7 +402,8 @@ legend = gtable_filter(ggplot_gtable(ggplot_build(g10 + theme(legend.position=c(
 
 g12 = gridExtra::grid.arrange(g10 + theme(legend.position="none"),
                              g11 + theme(legend.position="none")+
-                               theme(text = element_text(size = 20)),
+                               theme(text = element_text(size = 20),
+                                     legend.text=element_text(size=15)),
                              layout_matrix= cbind(c(1,3),c(2,3)),
                              nrow = 2,
                              ncol  = 2 ,
@@ -415,3 +416,4 @@ ggsave(filename = "fit_comp.png",
        dpi=1000, 
        width  = 13, 
        height = 7)
+
