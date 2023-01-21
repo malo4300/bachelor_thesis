@@ -6,7 +6,7 @@ library(bbplot)
 library(gridExtra)
 library(scales)
 source("functions/functions_for_dgp.R")
-path = "C:/Users/malo4/Documents/BA/3_Graphics/"
+path = "C:/Users/malo4/Documents/BA_tex/3_Graphics/"
 
 #results ----
 results = read.table("data/normal_yield_out_sample_sd.csv")

@@ -9,7 +9,7 @@ source("functions/functions_for_dgp.R")
 source("functions/fama_bliss.R")
 source("functions/kernel_matrix.R")
 source("functions/portfolio_characteristics.R")
-path = "C:/Users/malo4/Documents/BA/3_Graphics/"
+path = "C:/Users/malo4/Documents/BA_tex/3_Graphics/"
 
 
 # Maturity Distribution -----

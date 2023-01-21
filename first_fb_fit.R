@@ -132,7 +132,7 @@ calc_in_sample_error(y_true = y_new,
 
 plot(y_true, type = "l", col = "blue")
 lines(fb_est$y, type = "l", col = "red")
-k_s = ksmooth(x = seq(1,N), y = fb_est$y, bandwidth = 250)
+k_s = smooth.spline(x = seq(1,N), y = fb_est$y, df = 30)
 lines(k_s$y, type = "l", col = "green")
 
 
