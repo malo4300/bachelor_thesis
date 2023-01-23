@@ -131,9 +131,11 @@ calc_in_sample_error(y_true = y_new,
 # smooth ----
 
 plot(y_true, type = "l", col = "blue")
+sp = smooth.spline(x = portfolio$Maturity, y = fb_est$y[portfolio$Maturity], cv = T)
+sp_pred = predict(sp, x = seq(1,N))
 lines(fb_est$y, type = "l", col = "red")
 k_s = smooth.spline(x = seq(1,N), y = fb_est$y, df = 30)
-lines(k_s$y, type = "l", col = "green")
+lines(sp_pred$y, type = "l", col = "green")
 
 
 

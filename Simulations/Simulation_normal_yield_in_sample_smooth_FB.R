@@ -40,7 +40,7 @@ for(i in 1:length(noise_grid)){
   FB_obs_RMSE = rep(0,number_of_simulations)
   KR_true_RMSE = rep(0,number_of_simulations)
   KR_obs_RMSE = rep(0,number_of_simulations)
-  for(j in 1:number_of_simulations){
+  for(j in 1:100){
     #Sample Yield Curve
     y_true = sample_yield_function(weights_function = weights_function,
                                    max_maturity = N)

@@ -34,10 +34,10 @@ in_sample_results_smooth_FB = function(y_true,
   fb_fit = fb_solve(c_mat = C, 
                     price_vec = B, 
                     max_mat = N)
-  smooth_fb = smooth.spline(x = seq(1,max_maturity), 
-                            y = fb_fit$y, 
-                            df = max_maturity/365)
-  
+  smooth_fb = smooth.spline(x = sample_data$Maturity, 
+                            y = fb_fit$y[sample_data$Maturity], 
+                            cv = T)
+  sm_fb_y = predict(smooth_fb, x = seq(1,N))
   #Calculate RMSE
   in_sample_error_KR = calc_in_sample_error(y_true = y_true,
                                             y_fit = KR_Fit$y, 
@@ -47,7 +47,7 @@ in_sample_results_smooth_FB = function(y_true,
                                             obs_inv_w = obs_inv_w)
   
   in_sample_error_FB = calc_in_sample_error(y_true = y_true,
-                                            y_fit = smooth_fb$y, 
+                                            y_fit = sm_fb_y$y, 
                                             C = C,
                                             B = B,
                                             true_inv_weights = true_inv_weights, 
@@ -96,9 +96,10 @@ out_sample_results_smooth_FB =function(y_true,
                     price_vec = B, 
                     max_mat = N)
   #smoothing 
-  smooth_fb = smooth.spline(x = seq(1,max_maturity), 
-                            y = fb_fit$y, 
-                            df = max_maturity/365)
+  smooth_fb = smooth.spline(x = sample_data$Maturity, 
+                            y = fb_fit$y[sample_data$Maturity], 
+                            cv = T)
+  sm_fb_y = predict(smooth_fb, x = seq(1,N))
   
   shifted_portfolio = shift_portfolio(new_yield_curve = y_new,
                                       portfolio = sample_data,
@@ -123,7 +124,7 @@ out_sample_results_smooth_FB =function(y_true,
                                              obs_inv_w = obs_inv_w)
   
   out_sample_error_FB = calc_in_sample_error(y_true = y_new,
-                                             y_fit = smooth_fb$y, 
+                                             y_fit = sm_fb_y$y, 
                                              C = shifted_portfolio$Cashflow,
                                              B = shifted_portfolio$Price,
                                              true_inv_weights = true_inv_weights, 
