@@ -9,11 +9,11 @@ source("functions/functions_for_dgp.R")
 path = "C:/Users/malo4/Documents/BA_tex/3_Graphics/"
 
 #results ----
-results = read.table("data/normal_yield_out_sample_smooth_fb.csv")
+results = read.table("data/humped_yield_out_sample.csv")
 noise_grid = c(0, .5,1, 1.5, 2)
 bonds_grid = c(50,100,150,200)
 
-g1 = ggplot(data = data.frame(noise = noise_grid),aes(x = noise))+ 
+g1 = ggplot(data = data.frame(noise_grid = noise_grid),aes(x = noise_grid))+ 
   geom_point(aes(y = unlist(as.vector(results[1,])), col = "fb"),size = 3, shape = 3) +
   geom_line(aes(y = unlist(as.vector(results[1,])), colour = "fb"), alpha = .2)+
   geom_point(aes(y = unlist(as.vector(results[3,])), col = "kr"),size = 3, shape = 4) +
@@ -35,7 +35,7 @@ g1 = ggplot(data = data.frame(noise = noise_grid),aes(x = noise))+
 g1
 
 
-g2 = ggplot(data = data.frame(noise = noise_grid),aes(x = noise))+ 
+g2 = ggplot(data = data.frame(noise_grid = noise_grid),aes(x = noise_grid))+ 
   geom_point(aes(y = unlist(as.vector(results[2,])), col = "fb"),size = 3, shape = 3) +
   geom_line(aes(y = unlist(as.vector(results[2,])), colour = "fb"), alpha = .2)+
   geom_point(aes(y = unlist(as.vector(results[4,])), col = "kr"),size = 3, shape = 4) +
@@ -53,7 +53,9 @@ g2 = ggplot(data = data.frame(noise = noise_grid),aes(x = noise))+
 
 
 legend = gtable_filter(ggplot_gtable(ggplot_build(g1 + theme(legend.position=c(.54, .7),
-                                                             legend.direction = "horizontal"))), "guide-box")
+                                                             legend.direction = "horizontal",
+                                                             legend.text=element_text(size=15)))), 
+                       "guide-box")
 g3 = gridExtra::grid.arrange(g1 + theme(legend.position="none"),
                         g2 + theme(legend.position="none")+
                           theme(text = element_text(size = 20),
@@ -64,11 +66,28 @@ g3 = gridExtra::grid.arrange(g1 + theme(legend.position="none"),
                         legend,
                         heights=c(0.45, .45, 0.1))
 g3
-ggsave(filename = "R_normal_yield_out_sample_smooth_fb.png", 
+filename = "R_humped_yield_out_sample.png"
+ggsave(filename = filename , 
        plot= g3, 
        path = path, 
        device='png', 
        dpi=1000, 
        width = 8,
        height = 10)
+## in case of non allignment
+library(cowplot)
+g4 = plot_grid(g1 + theme(legend.position="none", text = element_text(size = 20)),
+          g2 + theme(legend.position="none", text = element_text(size = 20)),
+          legend,
+          ncol = 1, 
+          align = "v",
+          axis = "lb",
+          rel_heights =  c(0.45, 0.45, 0.1))
 
+ggsave(filename = filename, 
+       plot= g4 + theme_bw() + theme(panel.border = element_blank()) , 
+       path = path, 
+       device='png', 
+       dpi=1000, 
+       width = 8,
+       height = 10)          
