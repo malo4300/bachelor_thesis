@@ -10,6 +10,7 @@ alpha = 0.05
 delta = 0
 penalty = 1
 N = 30*365
+number_of_bonds = 200
 
 #Create Kernel Matrix
 K_Matrix = create_kernel_mat(alpha = alpha, 
@@ -37,11 +38,11 @@ true_portfolio_info = get_input_for_weights(C_mat = sample_data$Cashflow,
                                             B_vec = sample_data$True_price)
 true_inv_weight = get_inv_weights(true_portfolio_info$Duration, 
                                sample_data$True_price)
+#get maturities of bonds and time factor for noise inflicting
 ttm = apply(sample_data$Cashflow, 1, function(x) max(which(x!=0)))/365
 time_factor = (exp(.5*ttm)/(exp(3)+exp(.5*ttm)))
 #simulate results for different noise
 noise_grid = c(0,0.5,1,1.5,2)
-number_of_bonds = 200 #bonds per simulation that are generated
 number_of_simulations = 100
 var_grid_fb = rep(0,5)
 var_grid_kr = rep(0,5)
