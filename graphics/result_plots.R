@@ -9,7 +9,8 @@ source("functions/functions_for_dgp.R")
 path = "C:/Users/malo4/Documents/BA_tex/3_Graphics/"
 
 #results ----
-results = read.table("data/humped_yield_out_sample.csv")
+results = read.table("data/normal_yield_out_sample.csv")
+filename = "R_normal_out_sample.png"
 noise_grid = c(0, .5,1, 1.5, 2)
 bonds_grid = c(50,100,150,200)
 
@@ -66,7 +67,7 @@ g3 = gridExtra::grid.arrange(g1 + theme(legend.position="none"),
                         legend,
                         heights=c(0.45, .45, 0.1))
 g3
-filename = "R_humped_yield_out_sample.png"
+
 ggsave(filename = filename , 
        plot= g3, 
        path = path, 
