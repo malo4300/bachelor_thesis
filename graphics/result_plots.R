@@ -9,12 +9,12 @@ source("functions/functions_for_dgp.R")
 path = "C:/Users/malo4/Documents/BA_tex/3_Graphics/"
 
 #results ----
-results = read.table("data/normal_yield_out_sample.csv")
-filename = "R_normal_out_sample.png"
+results = read.table("data/normal_yield_out_sample_bonds.csv")
+filename = "R_normal_out_sample_bonds.png"
 noise_grid = c(0, .5,1, 1.5, 2)
 bonds_grid = c(50,100,150,200)
 
-g1 = ggplot(data = data.frame(noise_grid = noise_grid),aes(x = noise_grid))+ 
+g1 = ggplot(data = data.frame(bonds_grid = bonds_grid),aes(x = bonds_grid))+ 
   geom_point(aes(y = unlist(as.vector(results[1,])), col = "fb"),size = 3, shape = 3) +
   geom_line(aes(y = unlist(as.vector(results[1,])), colour = "fb"), alpha = .2)+
   geom_point(aes(y = unlist(as.vector(results[3,])), col = "kr"),size = 3, shape = 4) +
@@ -36,7 +36,7 @@ g1 = ggplot(data = data.frame(noise_grid = noise_grid),aes(x = noise_grid))+
 g1
 
 
-g2 = ggplot(data = data.frame(noise_grid = noise_grid),aes(x = noise_grid))+ 
+g2 = ggplot(data = data.frame(bonds_grid = bonds_grid),aes(x = bonds_grid))+ 
   geom_point(aes(y = unlist(as.vector(results[2,])), col = "fb"),size = 3, shape = 3) +
   geom_line(aes(y = unlist(as.vector(results[2,])), colour = "fb"), alpha = .2)+
   geom_point(aes(y = unlist(as.vector(results[4,])), col = "kr"),size = 3, shape = 4) +
@@ -45,7 +45,7 @@ g2 = ggplot(data = data.frame(noise_grid = noise_grid),aes(x = noise_grid))+
                      labels = c("Fama-Bliss", "Kernel-Ridge"),
                      breaks = c("fb", "kr"),
                      values = c("darkgreen", "darkred")) +
-  labs(x = "Level of noise",
+  labs(x = "Number of bonds",
        y = "Average observed RMSE") +
   theme_bw() + 
   scale_y_continuous(labels = comma) +
