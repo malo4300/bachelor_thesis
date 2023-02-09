@@ -5,7 +5,7 @@ weights_function = function(x,
                             c = 250, 
                             d = 500,
                             e = 70){ #introduce normal yield curve
-  a*(exp(-(0.15*x)^1/b) - c*dlnorm(x = x, mean = log(d),sd = log(sqrt(e))))
+  a*(exp(-(0.15*x)^1/b) - c*dlnorm(x = x, meanlog = log(d),sdlog = log(sqrt(e))))
 }
 
 sample_yield_function = function(weights_function, 
@@ -32,6 +32,7 @@ create_maturity_obj = function(maturities, max_maturity = 30*365, filter_90 = T)
   days_left = as.numeric(maturities - lubridate::dmy("03/01/23")) #deadline date
   days_left = days_left[days_left <= max_maturity]
   if(filter_90){
+    #allow only for bonds with ttm larger than 90 days
     days_left = days_left[90 < days_left]
     }
   density_maturities = density(days_left, bw = "SJ")
@@ -48,6 +49,7 @@ sample_maturity = function(maturity_obj, max_maturity = 30*365, filter_90 = T){
   } else{
     lower_bound = 1 # allows for shifting of the portfolio
   }
+  #resample if sampled maturity is outside the allowed time-frame
   while (sample <= lower_bound || sample > max_maturity) {
     sample = round(rnorm(1, mean = sample(maturity_obj$days_left, 1) , sd = bw),0)
   }
@@ -89,8 +91,7 @@ get_bond_price = function(C_vec, yield_str, noise = 1){
   price = C_vec[payable_dates] %*% discount_curve[payable_dates]
   # add noice
   ttm = max(payable_dates)/365
-  time_factor = (exp(.5*ttm)/(exp(3)+exp(.5*ttm)))
-  
+  time_factor = (exp(.5*ttm)/(exp(3)+exp(.5*ttm))) # scaling function for noise depends on ttm
   price = price + rnorm(1,0,noise) * time_factor
   #noise depends on maturity 
   return(round(price, 2))

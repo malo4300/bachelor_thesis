@@ -40,7 +40,7 @@ true_inv_weight = get_inv_weights(true_portfolio_info$Duration,
                                sample_data$True_price)
 #get maturities of bonds and time factor for noise inflicting
 ttm = apply(sample_data$Cashflow, 1, function(x) max(which(x!=0)))/365
-time_factor = (exp(.5*ttm)/(exp(3)+exp(.5*ttm)))
+time_factor = (exp(.5*ttm)/(exp(3)+exp(.5*ttm))) # same scaling as in other simulations
 #simulate results for different noise
 noise_grid = c(0,0.5,1,1.5,2)
 number_of_simulations = 100

@@ -85,7 +85,7 @@ ggsave(filename = name,
 
 # ytm for different noise of zero coupon bonds -----
 max_maturity = 30*365
-noise_grid = c(0,1,2)
+noise_grid = c(0,0.5,1,1.5,2)
 number_of_bonds = 200
 ytm_results = data.frame(obs_ytm = rep(0,number_of_bonds*length(noise_grid)),
                          ttm = rep(0,number_of_bonds*length(noise_grid)),
@@ -110,18 +110,18 @@ for (i in 1:length(noise_grid)) {
 
 g4 = ggplot(data = ytm_results, aes(x = ttm/365)) + 
   geom_point(aes(x = ttm/365, y  = obs_ytm), shape = 1, col = "darkblue") + 
-  facet_wrap(.~noise, nrow= 3, labeller = "label_both") +
+  facet_wrap(.~noise, nrow= 5, labeller = "label_both") +
   labs(x = "Time-to-maturity (ttm) in years", 
        y = "Yield-to-maturity (YTM)") +
 scale_x_continuous(expand = c(0.02,0,0.02,0))+
 scale_y_continuous(expand = c(0.02,0,0.02,0)) + 
   #geom_line(aes(x = ttm/365, y = y_true[ttm])) + 
   theme_bw() +
-  theme(text = element_text(size = 20),
-        strip.text.x = element_text(size = 20))
+  theme(text = element_text(size = 15),
+        strip.text.x = element_text(size = 10))
 g4
 name = "noise_grid_zero_coupon_ytm.png"
-ggsave(filename = name, plot= g4, path = path, device='png', dpi=900, width = 8, height = 8)
+ggsave(filename = name, plot= g4, path = path, device='png', dpi=900, width = 8, height = 11)
 
 # ytm fit plot -----
 
