@@ -280,7 +280,7 @@ ggsave(filename = "comp_fit_humped.png",
        height = 7)
 
 
-# normal fit -----
+# normal and humped fit -----
 alpha = 0.05
 delta = 0
 max_maturity = 30*365
@@ -395,7 +395,7 @@ g11 = ggplot(data = data.frame(y_true_humped,
   ylim(0,0.06)+
   theme_bw()
 
-g11
+
 
 legend = gtable_filter(ggplot_gtable(ggplot_build(g10 + theme(legend.position=c(.55, .65),
                                                              legend.direction = "horizontal"))), "guide-box")
