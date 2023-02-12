@@ -49,24 +49,3 @@ calc_in_sample_error = function(y_true,
   return(list("True_RSME" = Error_true,
               "Obs_RSME" = Error_obs))
 }
-
-#function to split the portfolio in different maturity buckets
-#it is only intended for the whole time horizon
-get_maturity_buckets = function(ttm){
-maturity_buckets = dplyr::case_when(
-    dplyr::between(ttm,0,365*1) ~ "0Y to 1Y",
-    dplyr::between(ttm,365*1+1,365*2) ~ "1Y to 2Y",
-    dplyr::between(ttm,365*2+1,365*3) ~ "2Y to 3Y",
-    dplyr::between(ttm,365*3+1,365*4) ~ "3Y to 4Y",
-    dplyr::between(ttm,365*4+1,365*5) ~ "4Y to 5Y",
-    dplyr::between(ttm,365*5+1,365*7) ~ "5Y to 7Y",
-    dplyr::between(ttm,365*7+1,365*10) ~ "7Y to 10Y",
-    dplyr::between(ttm,365*10+1,365*20) ~ "10Y to 20Y",
-    dplyr::between(ttm,365*20+1,Inf) ~ ">20>Y",
-    )
-return(maturity_buckets)
-}
-  
-
-
-

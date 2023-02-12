@@ -11,15 +11,7 @@ delta = 0
 penalty = 1
 noise = 3
 N = 30*365
-maturity_buckets = c("0Y to 1Y",
-                     "1Y to 2Y",
-                     "2Y to 3Y",
-                     "3Y to 4Y",
-                     "4Y to 5Y",
-                     "5Y to 7Y",
-                     "7Y to 10Y",
-                     "10Y to 20Y",
-                     ">20>Y")
+
 
 #Create Kernel Matrix
 K_Matrix = create_kernel_mat(alpha = alpha, 
@@ -73,15 +65,5 @@ for(i in 1:length(noise_grid)){
   results[3,i] = mean(KR_true_RMSE)
   results[4,i] = mean(KR_obs_RMSE)
 }
-
-
-#test_output$Maturity_Buckets_Results["7Y to 10Y",]
-#test_output$In_Sample_Results
-
-plot(unlist(results[4,])~noise_grid, col ="blue")
-points(unlist(results[2,])~noise_grid, col = "red")
-
-plot(unlist(results[1,])~noise_grid, col = "red")
-points(unlist(results[3,])~noise_grid, col ="blue")
 
 write.table(results, "data/normal_yield_in_sample.csv")

@@ -5,7 +5,6 @@ source("functions/portfolio_characteristics.R")
 source("functions/functions_for_simulation.R")
 source("functions/loss_functions.R")
 source("functions/unsmoothed_yield_fun.R")
-y_true = sample_yield_function(new_weight_fun,N )
 
 #Set Parameters
 alpha = 0.05
@@ -72,5 +71,3 @@ for(i in 1:length(noise_grid)){
 
 
 write.table(results, "data/unsmooth_yield_out_sample.csv")
-plot(unlist(results[1,]) ~ noise_grid, col = "darkgreen")
-points(unlist(results[3,]) ~ noise_grid, col = "darkred")

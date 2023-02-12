@@ -64,10 +64,6 @@ for(i in 1:length(bond_grid)){
   results[3,i] = mean(KR_true_RMSE)
   results[4,i] = mean(KR_obs_RMSE)
 }
-plot(unlist(results[2,])~bond_grid, col = "red")
-plot(unlist(results[4,])~bond_grid, col ="blue")
 
-plot(unlist(results[1,])~bond_grid, col = "red", ylim = c(0.0002,0.0008))
-points(unlist(results[3,])~bond_grid, col ="blue")
 
 write.table(results, "data/normal_yield_in_sample_no_bonds.csv")

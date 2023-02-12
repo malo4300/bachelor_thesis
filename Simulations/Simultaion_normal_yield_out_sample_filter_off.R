@@ -71,5 +71,4 @@ for(i in 1:length(noise_grid)){
 
 
 write.table(results, "data/normal_yield_out_sample_filter_off.csv")
-plot(unlist(results[2,]) ~ noise_grid, col = "darkgreen")
-points(unlist(results[4,]) ~ noise_grid, col = "darkred")
+

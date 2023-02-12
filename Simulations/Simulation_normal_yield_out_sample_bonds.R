@@ -71,6 +71,5 @@ for(i in 1:length(bond_grid)){
 
 
 write.table(results, "data/normal_yield_out_sample_bonds.csv")
-plot(unlist(results[1,]) ~ bond_grid, col = "darkgreen", ylim = c(0,.0025))
-points(unlist(results[3,]) ~ bond_grid, col = "darkred")
+
 
