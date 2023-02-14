@@ -9,7 +9,6 @@ source("functions/loss_functions.R")
 alpha = 0.05
 delta = 0
 penalty = 1
-noise = 3
 N = 30*365
 
 
