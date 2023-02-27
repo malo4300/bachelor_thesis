@@ -5,7 +5,7 @@ weights_function = function(x,
                             c = 250, 
                             d = 500,
                             e = 70){ #introduce normal yield curve
-  a*(exp(-(0.15*x)^1/b) - c*dlnorm(x = x, meanlog = log(d),sdlog = log(sqrt(e))))
+  a*(exp(-(0.15*x)/b) - c*dlnorm(x = x, meanlog = log(d),sdlog = log(sqrt(e))))
 }
 
 sample_yield_function = function(weights_function, 
