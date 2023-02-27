@@ -26,12 +26,12 @@ calc_obs_rmse = function(prices_obs, y_est, c_mat, weights = 1){
   return(sqrt(weights%*%(prices_obs-pred_price)^2))
 }
 
-calc_in_sample_error = function(y_true, 
-                                y_fit, 
-                                C, 
-                                B,
-                                true_inv_weights,
-                                obs_inv_w){
+calc_errors = function(y_true,
+                       y_fit, 
+                       C, 
+                       B,
+                       true_inv_weights,
+                       obs_inv_w){
   
   Error_true = calc_true_rmse(y_true = y_true,
                               y_est = y_fit,
