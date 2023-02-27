@@ -1,1 +1,3 @@
-## This is the code of my bachelor's thesis on yield curve estimators
+This is the code of my bachelor's thesis on yield curve estimators. This repository contains a high-scaled PDF version of the thesis as well as all code I have programmed. 
+The different simulations I have run are found in the 'Simulations' folder.
+The listings of US treasuries for the kernel density estimator are in the 'data' folder. In the 'functions' folder, you can find the implementation of the two yield curve estimators, the data-generating processes, and my version of a smooth Fama Bliss method. Additionally, multiple helper functions are also defined. For example, to calculate the yield-to-maturity or duration. I also wrote functions that decrease the amount of code needed in each simulation to clean up their files. The scripts in the 'graphics' folder contain all the code used for the figures that were seen in my thesis.  
