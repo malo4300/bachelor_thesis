@@ -93,7 +93,7 @@ ytm_results = data.frame(obs_ytm = rep(0,number_of_bonds*length(noise_grid)),
 set.seed(1) 
 y_true = sample_yield_function(weights_function = weights_function,
                                max_maturity = 30*365)
-# change coupon manually in file
+# change coupon manually to zero in file
 for (i in 1:length(noise_grid)) {
   set.seed(1) #sample the same bonds with different noise
   portfolio = sample_bonds_portfolio(maturity_obj = mat_object,
